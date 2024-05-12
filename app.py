@@ -7,7 +7,7 @@ from map import *
 st.title("DASHBOARD")
 st.sidebar.title("SIDE BAR")
 st.markdown("Select filters to visualize the dashboard")
-st.sidebar.markdown("This application is a Streamlit app used to analyze KPI of ChipChip")
+st.sidebar.markdown("This application is a Streamlit app used to Track pricing survey")
 
 # Convert Google Sheets URL to CSV URL
 url = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit?usp=sharing')
