@@ -18,6 +18,15 @@ selected_date_range = st.sidebar.date_input("Select Date Range",
 start_date = selected_date_range[0]
 end_date = selected_date_range[1]
 
+if start_date and end_date:
+    if start_date > end_date:
+        st.sidebar.error("Please select a valid date range.")
+    else:
+        # Rest of your code for selecting product and benchmark locations
+        visualize_price_by_location(survey, selected_date_range, selected_product, choice)
+else:
+    st.sidebar.info("Please select both start and end dates.")
+
 selected_product = st.sidebar.selectbox("Select Product", 
                                         ('Red Onion Grade A  Restaurant q', 'Red Onion Grade B',
        ' Red Onion Grade C', 'Potatoes', 'Potatoes Restaurant quality',
@@ -47,7 +56,5 @@ choice = st.sidebar.multiselect("Pick Location", ('benchmark location 1 Sunday m
        'Distribution center 1 Gerji (Raw)',
        'Distribution center 2 Garment (Raw)',
        'Distribution center Lemi kura'), key='unique_key_1')
-if start_date > end_date:
-    st.sidebar.error("Please select a valid date range.")
 
 visualize_price_by_location(survey, selected_date_range, selected_product, choice)
