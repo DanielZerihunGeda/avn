@@ -6,10 +6,12 @@ import matplotlib.pyplot as plt
 from map import *
 url = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit?usp=sharing')
 survey = pd.read_csv(url)
+
 st.title("DASHBOARD")
 st.sidebar.title("SIDE BAR")
 st.markdown("Select filters to visualize the dashboard")
 st.sidebar.markdown(" This application is a Streamlit app used to analyze KPI of ChipChip")
+# Convert 'created_at' to datetime and 'location' to a tuple of floats (latitude, longitude)
 # Convert 'created_at' to datetime and 'location' to a tuple of floats (latitude, longitude)
 selected_date_range = st.sidebar.date_input("Select Date Range", 
                                            value=(pd.to_datetime('today') - pd.to_timedelta(7, unit='d'), 
@@ -26,6 +28,7 @@ if start_date and end_date:
         visualize_price_by_location(survey, selected_date_range, selected_product, choice)
 else:
     st.sidebar.info("Please select both start and end dates.")
+
 
 selected_product = st.sidebar.selectbox("Select Product", 
                                         ('Red Onion Grade A  Restaurant q', 'Red Onion Grade B',
