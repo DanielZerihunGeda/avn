@@ -11,8 +11,6 @@ st.sidebar.title("SIDE BAR")
 st.markdown("Select filters to visualize the dashboard")
 st.sidebar.markdown(" This application is a Streamlit app used to analyze KPI of ChipChip")
 # Convert 'created_at' to datetime and 'location' to a tuple of floats (latitude, longitude)
-"""df['created_at'] = pd.to_datetime(df['created_at'])
-df[['longitude', 'latitude']] = df['location'].str.strip('()').str.split(',', expand=True).astype(float)"""
 selected_date_range = st.sidebar.date_input("Select Date Range", 
                                            value=(pd.to_datetime('today') - pd.to_timedelta(7, unit='d'), 
                                                   pd.to_datetime('today')), 
