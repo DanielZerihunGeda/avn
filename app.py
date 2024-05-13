@@ -51,7 +51,8 @@ selected_locations = st.sidebar.multiselect("Pick Location",
                                              'Distribution center Lemi kura/ Alem bank',
                                              'Distribution center 1 Gerji (Raw)',
                                              'Distribution center 2 Garment (Raw)',
-                                             'Distribution center Lemi kura'), 
+                                             'Distribution center Lemi kura',
+                                            'Cost per kg farm'), 
                                             key='unique_key_1')
 
 # Check if both start and end dates are selected
