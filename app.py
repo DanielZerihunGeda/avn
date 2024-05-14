@@ -25,7 +25,7 @@ end_date = selected_date_range[1]
 if start_date > end_date:
   st.sidebar.error("Please select a valid date range.")
 bench_mark = st.sidebar.multiselect("Minmum Price",
-                                    'Suk',
+                                    ('Suk',
                                     'Super Market',
                                     'Sunday Market'),
                                             key='unique_key_3')
