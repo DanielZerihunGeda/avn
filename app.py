@@ -79,5 +79,4 @@ selected_locations = st.sidebar.multiselect("Pick Location",
                                              'Distribution center Lemi kura',
                                             'Cost per kg farm'), 
                                             key='unique_key_1')
-
-    visualize_price_by_location(survey, selected_date_range, selected_product, selected_locations)
+visualize_price_by_location(survey, selected_date_range, selected_product, selected_locations)
