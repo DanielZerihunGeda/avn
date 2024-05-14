@@ -15,6 +15,21 @@ def convert_google_sheet_url(url):
     new_url = re.sub(pattern, replacement, url)
 
     return new_url
+def map_categories_to_locations(data, selected_categories, full_data):
+     # Create a dictionary for category mapping 
+    category_location_map = {
+        "Suk": "Specific location for Suk",
+        "Super Market": "Specific location for Super Market",
+        "Sunday Market": "Specific location for Sunday Market",
+    }
+    # Map categories to locations based on selected categories and full data
+    data["Location"] = data.apply(
+        lambda row: category_location_map.get(row["Category"], [])
+        if row["Category"] in selected_categories
+        else [],
+        axis=1,
+    )
+    
 def visualize_min_price_per_each_category(df, selected_date_range, selected_categories):
     start_date, end_date = selected_date_range 
     suk, supermarket, sundaymarket = selected_categories
@@ -33,19 +48,13 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_cate
         (df['Location'].isin(selected_locations))&
        
     ]
-    # Create a dictionary for category mapping 
-    category_location_map = {
-        "Suk": "Specific location for Suk",
-        "Super Market": "Specific location for Super Market",
-        "Sunday Market": "Specific location for Sunday Market",
-    }
-    # Map categories to locations based on selected categories and full data
-    data["Location"] = data.apply(
-        lambda row: category_location_map.get(row["Category"], [])
-        if row["Category"] in selected_categories
-        else [],
-        axis=1,
-    )
+   
+    # Filter data based on selected categories
+    filtered_df = df[df["Category"].isin(bench_mark)]
+    
+    # Get mapped locations using the function with additional argument
+    mapped_df = map_categories_to_locations(filtered_df, bench_mark, df)
+
 
 
         
