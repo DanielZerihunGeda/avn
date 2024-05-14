@@ -16,7 +16,47 @@ def convert_google_sheet_url(url):
 
     return new_url
 
+import pandas as pd
+def visualize_min_price_per_each_category(df, selected_date_range, selected_locations):
+    start_date, end_date = selected_date_range 
 
+    # Convert start_date and end_date to datetime objects 
+    start_date = pd.to_datetime(start_date) 
+    end_date = pd.to_datetime(end_date)
+
+    # Convert 'timestamp' column to datetime format 
+    df['timestamp'] = pd.to_datetime(df['timestamp']) 
+    category_location_map = [
+            ["benchmark location 1 Suk Bole","benchmark location 3 Suk Yeka","benchmark location 6 Suk Kolfe","benchmark location 2 Suk Gulele","benchmark location 4 Suk Arada"],
+            ["benchmark location 1 Sunday market Piaza", "benchmark location 2 Sunday market Bole", "benchmark location 3 Sunday market Gerji","benchmark location 4 Sunday market Kolfe"],
+            ["benchmark location 3 supermarket Freshcorner","benchmark location 1 supermarket Queens","benchmark location 2 supermarket Purpose black","benchmark location 1 supermarket Queens"],
+    ]
+    # Create a dictionary for category assignment
+    category_names = ["Suk", "Sunday Market", "Supermarket"]
+    location_category_map = {loc: category for category, locations in zip(category_names, category_location_map) for loc in locations}
+
+
+    # Filter DataFrame for the selected date range and locations
+    filtered_data = df[
+          (df['timestamp'] >= start_date) &
+          (df['timestamp'] <= end_date) &
+          (df['Location'].isin(selected_locations))
+        
+       ]
+
+    # Minimum price per category
+    if not filtered_data.empty:  # Check if data is empty
+        # Map locations to categories
+        filtered_data["Category"] = filtered_data["Location"].map(location_category_map)
+
+        # Minimum price per category using groupby
+        min_prices_per_category = filtered_data.groupby("Category")["Min_unit_price"].min().reset_index()
+    else:
+        min_prices_per_category = pd.DataFrame(columns=["Category", "Min_unit_price"])  # Empty DataFrame if no data
+    
+    return min_prices_per_category
+    
+     
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
     start_date, end_date = selected_date_range 
 
