@@ -15,24 +15,10 @@ def convert_google_sheet_url(url):
     new_url = re.sub(pattern, replacement, url)
 
     return new_url
-def map_categories_to_locations(data, selected_categories, full_data):
-     # Create a dictionary for category mapping 
-    category_location_map = {
-        "Suk": "Specific location for Suk",
-        "Super Market": "Specific location for Super Market",
-        "Sunday Market": "Specific location for Sunday Market",
-    }
-    # Map categories to locations based on selected categories and full data
-    data["Location"] = data.apply(
-        lambda row: category_location_map.get(row["Category"], [])
-        if row["Category"] in selected_categories
-        else [],
-        axis=1,
-    )
+
     
-def visualize_min_price_per_each_category(df, selected_date_range, selected_categories):
+def visualize_min_price_per_each_category(df, selected_categories, selected_date_range, selected_locations):
     start_date, end_date = selected_date_range 
-    suk, supermarket, sundaymarket = selected_categories
 
     # Convert start_date and end_date to datetime objects 
     start_date = pd.to_datetime(start_date) 
@@ -42,30 +28,45 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_cate
     df['timestamp'] = pd.to_datetime(df['timestamp']) 
     # Filter DataFrame for the selected date range and product 
 
-    filtered_data = df[ 
-        (df['timestamp'] >= start_date) &  
-        (df['timestamp'] <= end_date) &  
-        (df['Location'].isin(selected_locations))&
+    # Filter DataFrame for the selected date range and locations
+    filtered_data = df[
+          (df['timestamp'] >= start_date) &
+          (df['timestamp'] <= end_date) &
+          (df['Location'].isin(selected_locations))&
+          # (if selected_categories == "Suk":
+          #       df.loc[np.where((df['Location'].values == category_location_map[0]
+          #  elif selected_categories == "Super Market":
+          #       df.loc[np.where((df['Location'].values == category_location_map[1]
+          #  else:
+          #       df.loc[np.where((df['Location'].values == category_location_map[2])
+       ]
+        category_location_map = {
+            "Suk":["benchmark location 1 Suk Bole","benchmark location 3 Suk Yeka","benchmark location 6 Suk Kolfe","benchmark location 2 Suk Gulele","benchmark location 4 Suk Arada"],
+            "Sunday Market":["benchmark location 1 Sunday market Piaza", "benchmark location 2 Sunday market Bole", "benchmark location 3 Sunday market Gerji","benchmark location 4 Sunday market Kolfe"],
+            "Super Market":["benchmark location 3 supermarket Freshcorner","benchmark location 1 supermarket Queens","benchmark location 2 supermarket Purpose black","benchmark location 1 supermarket Queens"],
+        }
+    
+    
+  
+    # Minimum price per category
+    if not filtered_data.empty:  # Check if data is empty
+        # Create a dictionary for category assignment (assuming unique locations)
+
+        category_mapping = {loc: category for loc, category in category_location_map, selected_locations)}
+        filtered_data["Category"] = filtered_data["Location"].apply(lambda loc: category_mapping.get(loc))
+        
+        # Minimum price per category using groupby
+        min_prices_per_category = filtered_data.groupby("Category")["Min_unit_price"].min().reset_index()  
+    else:
+        min_prices_per_category = pd.DataFrame(columns=["Category", "Min_unit_price"])  # Empty DataFrame if no data
+    
+    return min_prices_per_category
+
+
+   
+
        
-    ]
-   
-    # Filter data based on selected categories
-    filtered_df = df[df["Category"].isin(bench_mark)]
-    
-    # Get mapped locations using the function with additional argument
-    mapped_df = map_categories_to_locations(filtered_df, bench_mark, df)
-
-
-
         
-   
-        
-
-    
-
-    
-
-
 
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
     start_date, end_date = selected_date_range 
