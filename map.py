@@ -29,11 +29,11 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
     category_location_map = [
             ["benchmark location 1 Suk Bole","benchmark location 3 Suk Yeka","benchmark location 6 Suk Kolfe","benchmark location 2 Suk Gulele","benchmark location 4 Suk Arada"],
             ["benchmark location 1 Sunday market Piaza", "benchmark location 2 Sunday market Bole", "benchmark location 3 Sunday market Gerji","benchmark location 4 Sunday market Kolfe"],
-            ["benchmark location 3 supermarket Freshcorner","benchmark location 1 supermarket Queens","benchmark location 2 supermarket Purpose black","benchmark location 1 supermarket Queens"],
+            ["benchmark location 3 supermarket Freshcorner","benchmark location 1 supermarket Queens","benchmark location 2 supermarket Purpose black"],
     ]
     # Create a dictionary for category assignment
     category_names = ["Suk", "Sunday Market", "Supermarket"]
-    location_category_map = {loc: category for category, locations in zip(category_names, category_location_map) for loc in locations}
+    location_category_map = {loc: category for category, locations in zip(category_names, category_location_map) for loc in set(locations)}
 
 
     # Filter DataFrame for the selected date range and locations
@@ -51,7 +51,7 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
         
 
         # Minimum price per category using groupby
-        min_price_per_category = filtered_data.agg("Category")["Min_unit_price"].min().reset_index()
+        min_price_per_category = filtered_data.groupby("Category")['Min_unit_price'].min().reset_index()
         # Display the title for the chart 
         st.title('Minimum Price Per Category Visualization')
         st.subheader('Minimum Prices Per Category')
