@@ -24,6 +24,29 @@ start_date = selected_date_range[0]
 end_date = selected_date_range[1]
 if start_date > end_date:
   st.sidebar.error("Please select a valid date range.")
+Sunday_market = st.sidebar.multiselect("Pick Location", 
+                                            ('benchmark location 1 Sunday market Piaza',
+                                             'benchmark location 2 Sunday market Bole',
+                                             'benchmark location 3 Sunday market Gerji'
+                                            ), 
+                                            key='unique_key_3')
+Super_market = st.sidebar.multiselect("Pick Location", 
+                                            (
+                                             'benchmark location 1 supermarket Queens',
+                                             'benchmark location 2 supermarket Purpose black',
+                                             'benchmark location 1 supermarket Queens - per 5 pieces',
+                                             'benchmark location 4 Sunday market Kolfe',
+                                             'benchmark location 3 supermarket Freshcorner'
+                                            ), 
+                                            key='unique_key_4')
+Suk = st.sidebar.multiselect("Pick Location", 
+                                            (
+                                             'benchmark location 1 Suk Bole', 'benchmark location 2 Suk Gulele',
+                                             'benchmark location 3 Suk Yeka', 'benchmark location 4 Suk Arada',
+                                             'benchmark locatio_by_location 5 Suk Lideta',
+                                             'benchmark location 6 Suk Kolfe'
+                                            ), 
+                                            key='unique_key_5')
 selected_product = st.sidebar.selectbox("Select Product", 
                                         ('Red Onion Grade A  Restaurant q', 'Red Onion Grade B',
                                          ' Red Onion Grade C', 'Potatoes', 'Potatoes Restaurant quality',
