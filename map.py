@@ -55,8 +55,18 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
     else:
         min_prices_per_category = pd.DataFrame(columns=["Category", "Min_unit_price"])  # Empty DataFrame if no data
     # Display the title for the chart 
-    st.markdown(f"### Minimum Price Per Category Visualization for {selected_categories} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
+    st.title('Minimum Price Per Category Visualization')
+    st.subheader('Minimum Prices Per Category')
+    st.dataframe(min_prices_per_category)
 
+    st.subheader('Bar Chart of Minimum Prices Per Category')
+    fig, ax = plt.subplots()
+    min_prices_per_category.plot(kind='bar', x='Category', y='Min_unit_price', ax=ax, legend=False)
+    plt.ylabel('Min Unit Price')
+    plt.title('Minimum Prices Per Category')
+    st.pyplot(fig)
+
+   
     return min_prices_per_category
     
      
