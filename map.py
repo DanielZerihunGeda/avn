@@ -48,12 +48,15 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
     if not filtered_data.empty:  # Check if data is empty
         # Map locations to categories
         filtered_data["Category"] = filtered_data["Location"].map(location_category_map)
+        selected_categories = filtered_data["Category"]
 
         # Minimum price per category using groupby
         min_prices_per_category = filtered_data.groupby("Category")["Min_unit_price"].min().reset_index()
     else:
         min_prices_per_category = pd.DataFrame(columns=["Category", "Min_unit_price"])  # Empty DataFrame if no data
-    
+    # Display the title for the chart 
+    st.markdown(f"### Minimum Price Per Category Visualization for {selected_categories} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
+
     return min_prices_per_category
     
      
