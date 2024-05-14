@@ -20,8 +20,10 @@ selected_date_range = st.sidebar.date_input("Select Date Range",
                                            value=(pd.to_datetime('today') - pd.to_timedelta(7, unit='d'), 
                                                   pd.to_datetime('today')), 
                                            key="date_range")
-
-# Product selection
+start_date = selected_date_range[0]
+end_date = selected_date_range[1]
+if start_date > end_date:
+  st.sidebar.error("Please select a valid date range.")
 selected_product = st.sidebar.selectbox("Select Product", 
                                         ('Red Onion Grade A  Restaurant q', 'Red Onion Grade B',
                                          ' Red Onion Grade C', 'Potatoes', 'Potatoes Restaurant quality',
@@ -55,9 +57,4 @@ selected_locations = st.sidebar.multiselect("Pick Location",
                                             'Cost per kg farm'), 
                                             key='unique_key_1')
 
-# Check if both start and end dates are selected
-if selected_date_range[0] and selected_date_range[1]:
-    # Visualize price by location
     visualize_price_by_location(survey, selected_date_range, selected_product, selected_locations)
-else:
-    st.sidebar.info("Please select both start and end dates.")
