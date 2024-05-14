@@ -55,11 +55,11 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
         # Display the title for the chart 
         st.title('Minimum Price Per Category Visualization')
         st.subheader('Minimum Prices Per Category')
-        st.dataframe(min_prices_per_category)
+        st.dataframe(min_price_per_category)
     
         st.subheader('Bar Chart of Minimum Prices Per Category')
         fig, ax = plt.subplots()
-        min_prices_per_category.plot(kind='bar', x='Category', y='Min_unit_price', ax=ax, legend=False)
+        min_price_per_category.plot(kind='bar', x='Category', y='Min_unit_price', ax=ax, legend=False)
         plt.ylabel('Min Unit Price')
         plt.title('Minimum Prices Per Category')
         st.pyplot(fig)
