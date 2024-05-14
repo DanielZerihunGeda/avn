@@ -26,12 +26,20 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_cate
     # Convert 'timestamp' column to datetime format 
     df['timestamp'] = pd.to_datetime(df['timestamp']) 
     # Filter DataFrame for the selected date range and product 
-    mapping_location_to_categories= {
-        
+    
+    category_location_map = {
+        "Suk": "Specific location for Suk",
+        "Super Market": "Specific location for Super Market",
+        "Sunday Market": "Specific location for Sunday Market",
     }
+
+   
+
     filtered_data = df[ 
         (df['timestamp'] >= start_date) &  
         (df['timestamp'] <= end_date) &  
+        (df["Category"].isin(bench_mark))&
+    ]
         
 
     
