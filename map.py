@@ -17,7 +17,7 @@ def convert_google_sheet_url(url):
     return new_url
 
     
-def visualize_min_price_per_each_category(df, selected_categories, selected_date_range, selected_locations):
+def visualize_min_price_per_each_category(df, selected_date_range, selected_locations):
     start_date, end_date = selected_date_range 
 
     # Convert start_date and end_date to datetime objects 
