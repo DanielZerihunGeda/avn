@@ -68,7 +68,7 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
         min_price_per_category = pd.DataFrame(columns=["Category", "Min_unit_price"])  # Empty DataFrame if no data
   
    
-    return min_prices_per_category
+    # return min_prices_per_category
     
      
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
