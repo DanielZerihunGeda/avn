@@ -32,7 +32,7 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
     filtered_data = df[
           (df['timestamp'] >= start_date) &
           (df['timestamp'] <= end_date) &
-          (df['Location'].isin(selected_locations))&
+          (df['Location'].isin(selected_locations))
           # (if selected_categories == "Suk":
           #       df.loc[np.where((df['Location'].values == category_location_map[0]
           #  elif selected_categories == "Super Market":
@@ -40,7 +40,7 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
           #  else:
           #       df.loc[np.where((df['Location'].values == category_location_map[2])
        ]
-        category_location_map = {
+    category_location_map = {
             "Suk":["benchmark location 1 Suk Bole","benchmark location 3 Suk Yeka","benchmark location 6 Suk Kolfe","benchmark location 2 Suk Gulele","benchmark location 4 Suk Arada"],
             "Sunday Market":["benchmark location 1 Sunday market Piaza", "benchmark location 2 Sunday market Bole", "benchmark location 3 Sunday market Gerji","benchmark location 4 Sunday market Kolfe"],
             "Super Market":["benchmark location 3 supermarket Freshcorner","benchmark location 1 supermarket Queens","benchmark location 2 supermarket Purpose black","benchmark location 1 supermarket Queens"],
