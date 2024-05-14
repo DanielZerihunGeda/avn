@@ -65,4 +65,5 @@ selected_locations = st.sidebar.multiselect("Pick Location",
                                             'Cost per kg farm'), 
                                             key='unique_key_1')
 visualize_price_by_location(survey, selected_date_range, selected_product, selected_locations)
+visualize_min_price_per_each_category(survey,selected_date_range, selected_locations)
 
