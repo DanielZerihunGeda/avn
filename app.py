@@ -30,6 +30,8 @@ bench_mark = st.sidebar.multiselect("Minmum Price",
                                     'Sunday Market'),
                                             key='unique_key_3')
 
+
+
 selected_product = st.sidebar.selectbox("Select Product", 
                                         ('Red Onion Grade A  Restaurant q', 'Red Onion Grade B',
                                          ' Red Onion Grade C', 'Potatoes', 'Potatoes Restaurant quality',
