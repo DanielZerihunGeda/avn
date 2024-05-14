@@ -51,7 +51,7 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
         
 
         # Minimum price per category using groupby
-        min_price_per_category = filtered_data.groupby("Category")["Min_unit_price"].min().reset_index()
+        min_price_per_category = filtered_data.groupby("Category")df['Min_unit_price'].min().reset_index()
         # Display the title for the chart 
         st.title('Minimum Price Per Category Visualization')
         st.subheader('Minimum Prices Per Category')
