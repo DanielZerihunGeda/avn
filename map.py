@@ -16,7 +16,7 @@ def convert_google_sheet_url(url):
 
     return new_url
 
-import pandas as pd
+
 def visualize_min_price_per_each_category(df, selected_date_range, selected_locations):
     start_date, end_date = selected_date_range 
 
