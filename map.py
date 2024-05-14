@@ -15,6 +15,31 @@ def convert_google_sheet_url(url):
     new_url = re.sub(pattern, replacement, url)
 
     return new_url
+def visualize_min_price_per_each_category(df, selected_date_range, selected_categories):
+    start_date, end_date = selected_date_range 
+    suk, supermarket, sundaymarket = selected_categories
+
+    # Convert start_date and end_date to datetime objects 
+    start_date = pd.to_datetime(start_date) 
+    end_date = pd.to_datetime(end_date)
+
+    # Convert 'timestamp' column to datetime format 
+    df['timestamp'] = pd.to_datetime(df['timestamp']) 
+    # Filter DataFrame for the selected date range and product 
+    mapping_location_to_categories= {
+        
+    }
+    filtered_data = df[ 
+        (df['timestamp'] >= start_date) &  
+        (df['timestamp'] <= end_date) &  
+        
+
+    
+
+    
+
+
+
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
     start_date, end_date = selected_date_range 
 
