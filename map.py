@@ -69,19 +69,11 @@ def visualize_min_price_per_each_category(df, selected_date_range, selected_loca
   
    
     # return min_prices_per_category
-    
-     
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
     start_date, end_date = selected_date_range 
-
-    # Convert start_date and end_date to datetime objects 
     start_date = pd.to_datetime(start_date) 
     end_date = pd.to_datetime(end_date) 
-
-    # Convert 'timestamp' column to datetime format 
-    df['timestamp'] = pd.to_datetime(df['timestamp']) 
-
-    # Filter DataFrame for the selected date range and product 
+    df['timestamp'] = pd.to_datetime(df['timestamp'])  
     filtered_data = df[ 
         (df['timestamp'] >= start_date) &  
         (df['timestamp'] <= end_date) &  
@@ -102,10 +94,10 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
 
     # Create Altair chart with side legend for full string display
     chart = alt.Chart(filtered_data).mark_line(interpolate='basis').encode( 
-        x=alt.X('timestamp:T', axis=alt.Axis(title='Date')), 
+        x=alt.X('yearmonthdate(timestamp):T', axis=alt.Axis(title='Date')), 
         y=alt.Y('average_price:Q', title='Average Price', scale=alt.Scale(zero=False)), 
         color=alt.Color('Location:N', legend=alt.Legend(title='Location', orient='right', labelLimit=400)), 
-        tooltip=['timestamp:T', 'Location:N', 'average_price:Q'] 
+        tooltip=['yearmonthdate(timestamp):T', 'Location:N', 'average_price:Q'] 
     ).properties( 
         width=600, 
         height=400, 
@@ -119,3 +111,53 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
 
     # Display the chart in the Streamlit app 
     st.altair_chart(chart, use_container_width=True)
+    
+     
+# def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
+#     start_date, end_date = selected_date_range 
+
+#     # Convert start_date and end_date to datetime objects 
+#     start_date = pd.to_datetime(start_date) 
+#     end_date = pd.to_datetime(end_date) 
+
+#     # Convert 'timestamp' column to datetime format 
+#     df['timestamp'] = pd.to_datetime(df['timestamp']) 
+
+#     # Filter DataFrame for the selected date range and product 
+#     filtered_data = df[ 
+#         (df['timestamp'] >= start_date) &  
+#         (df['timestamp'] <= end_date) &  
+#         (df['Products List'] == selected_product) & 
+#         (df['Location'].isin(selected_locations)) 
+#     ] 
+
+#     # Display the title for the chart 
+#     st.markdown(f"### Price Visualization for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
+
+#     # Check if the filtered data is empty 
+#     if filtered_data.empty: 
+#         st.markdown("No data available for the selected parameters.") 
+#         return 
+
+#     # Calculate average price using .assign()
+#     filtered_data = filtered_data.assign(average_price=lambda x: (x['Min_unit_price'] + x['Max_unit_price']) / 2)
+
+#     # Create Altair chart with side legend for full string display
+#     chart = alt.Chart(filtered_data).mark_line(interpolate='basis').encode( 
+#         x=alt.X('timestamp:T', axis=alt.Axis(title='Date')), 
+#         y=alt.Y('average_price:Q', title='Average Price', scale=alt.Scale(zero=False)), 
+#         color=alt.Color('Location:N', legend=alt.Legend(title='Location', orient='right', labelLimit=400)), 
+#         tooltip=['timestamp:T', 'Location:N', 'average_price:Q'] 
+#     ).properties( 
+#         width=600, 
+#         height=400, 
+#         title=f'Average Price Trends of {selected_product}' 
+#     ).configure_axis( 
+#         grid=True 
+#     ).configure_legend( 
+#         labelFontSize=10, 
+#         titleFontSize=12 
+#     ).interactive() 
+
+#     # Display the chart in the Streamlit app 
+#     st.altair_chart(chart, use_container_width=True)
