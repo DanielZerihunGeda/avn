@@ -72,7 +72,7 @@ available_products = filtered_survey['Products List'].unique()
 available_locations = filtered_survey['Location'].unique()
 
 selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
-price_metric = st.sidebar.radio("Select Price Metric", ['Minimum', 'Average'], key='price_metric')
+# price_metric = st.sidebar.radio("Select Price Metric", ['Minimum', 'Average'], key='price_metric')
 
 end_date_data = survey[(survey['Products List'] == selected_product) & 
                        (survey['Timestamp'] == end_date)]
