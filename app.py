@@ -35,8 +35,8 @@ st.sidebar.markdown("This application is a Streamlit app used to track pricing s
 col = st.columns((1.5, 4.5, 2), gap='medium')
 # Convert Google Sheets URL to CSV URL
 url_1 = convert_google_sheet_url(st.secrets["url_1"])
-url = convert_google_sheet_url(st.secrets('url'))
-url_2 = convert_google_sheet_url(st.secrets('url_2'))
+url = convert_google_sheet_url(st.secrets["url"])
+url_2 = convert_google_sheet_url(st.secrets["url_2"])
 st.write(f"Converted URL: {url},{url_1},{url_2}") 
 
 try:
