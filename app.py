@@ -52,7 +52,7 @@ try:
     chip_prices = read_gsheet_to_df('chip', 'chip_prices')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
-    chip_price = individual_group_prices(chip_prices, selected_date_range, selected_product)
+    
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
     st.stop()
@@ -130,7 +130,7 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
     key_counter += 1
 
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
-
+chip_price = individual_group_prices(chip_prices, selected_date_range, selected_product)
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
