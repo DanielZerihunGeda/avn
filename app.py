@@ -75,7 +75,9 @@ available_locations = filtered_survey['Location'].unique()
 
 selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
 end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
+chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
 
+combined = concatenate_dfs(survey,chip_prices)
 location_groups = {
     "Local Shops": ['benchmark location 1 Suk Bole', 'benchmark location 2 Suk Gulele',
                     'benchmark location 3 Suk Yeka', 'benchmark location 4 Suk Arada',
@@ -152,5 +154,6 @@ html_string = f"""
     <span style="font-weight: bold; color: red;">{text}</span>
     """
 st.write(html_string, unsafe_allow_html=True)
-st.write(individual_group_prices(chip_prices, selected_date_range, selected_product))
-plot_min_price_trends(survey, selected_date_range, selected_product, location_groups, selected_groups)
+
+st.write(chip_prices)
+plot_min_price_trends(combined, selected_date_range, selected_product, location_groups, selected_groups)
