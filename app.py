@@ -146,5 +146,6 @@ for section in sections:
     st.write(df[section])
     collapsible_table(section, df1[section])
     st.write("<hr style='border-top: 2px solid white; margin: 10px 0;'>", unsafe_allow_html=True)
+    st.write(chip_price)
 
 plot_min_price_trends(survey, selected_date_range, selected_product, location_groups, selected_groups)
