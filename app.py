@@ -52,7 +52,7 @@ try:
     survey_3 = pd.read_csv(url_3)
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price','Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price','Product Origin ':'Location','Product List':'Products List'})
-    survey_4 =  pd.read_csv(url_4)
+   # survey_4 =  pd.read_csv(url_4)
     st.write("Data loaded successfully!") 
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
