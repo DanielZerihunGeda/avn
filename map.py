@@ -184,7 +184,7 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
         group_dfs[group] = group_df
     return group_dfs
 
-def append_df_to_gsheet(sheet_name, worksheet_title, df):
+def append_df_to_gsheet(sheet_name, worksheet_index, df):
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
@@ -209,7 +209,7 @@ def append_df_to_gsheet(sheet_name, worksheet_title, df):
 
     try:
         spreadsheet = client.open(sheet_name)
-        worksheet = spreadsheet.worksheet(worksheet_title)  # Get the worksheet by title
+        worksheet = spreadsheet.get_worksheet(worksheet_index)  # Get the worksheet by index
 
         # Get the last row number with data in the worksheet
         last_row = len(worksheet.get_all_values()) + 1
@@ -222,7 +222,7 @@ def append_df_to_gsheet(sheet_name, worksheet_title, df):
     except gspread.exceptions.SpreadsheetNotFound:
         st.error(f"Spreadsheet '{sheet_name}' not found.")
     except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Worksheet '{worksheet_title}' not found in spreadsheet '{sheet_name}'.")
+        st.error(f"Worksheet at index {worksheet_index} not found in spreadsheet '{sheet_name}'.")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
