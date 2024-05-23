@@ -157,7 +157,12 @@ visualize_price_by_location(filtered_survey, selected_date_range, selected_produ
 
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
-st.write(":blue[Local shops Overview]")
+
+text = "Local shops Overview"
+html_string = f"""
+<span style="font-weight: bold; color: blue;">{text}</span>
+"""
+st.write(html_string, unsafe_allow_html=True)
 st.write(df["Local Shops"])
 collapsible_table("Local Shops",df1["Local Shops"])
 st.write("Supermarkets Overview")
