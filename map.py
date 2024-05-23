@@ -94,23 +94,13 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
     st.altair_chart(chart, use_container_width=True)
 #CHIP INDIVIDUAL AND GROUP PRICES   
 def individual_group_prices(df, selected_date_range, selected_product):
-    # Convert 'Timestamp' column to datetime format
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m/%d/%Y %H:%M')
-
-    # Step 1: Filter the DataFrame based on the selected date range and product
     df_filtered = df[(df['Timestamp'] >= pd.to_datetime(selected_date_range[0], format='%m/%d/%Y')) &
                      (df['Timestamp'] <= pd.to_datetime(selected_date_range[1], format='%m/%d/%Y'))]
     df_filtered = df_filtered[df_filtered['Products List'] == selected_product]
-
-    # Step 2: Pivot the filtered DataFrame
-    pivot_df = df_filtered.pivot(index='Location', columns='Timestamp', values='Unit Price')
-
-    # Step 3: Group by unique values in the 'Location' column
+    pivot_df = df_filtered.pivot_table(index='Location', columns='Timestamp', values='Unit Price', aggfunc='mean')
     grouped_df = pivot_df.groupby('Location').sum()
-
-    # Step 4: Calculate the total for each unique value
     grouped_df['Total'] = grouped_df.sum(axis=1)
-
     return grouped_df
 def create_data_entry_form_and_return_csv():
     with st.form(key='data_entry_form'):
