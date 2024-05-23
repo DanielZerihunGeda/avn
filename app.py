@@ -130,7 +130,7 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
     key_counter += 1
 
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
-chip_price = individual_group_prices(chip_prices, selected_date_range, selected_product)
+
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
@@ -146,6 +146,6 @@ for section in sections:
     st.write(df[section])
     collapsible_table(section, df1[section])
     st.write("<hr style='border-top: 2px solid white; margin: 10px 0;'>", unsafe_allow_html=True)
-    st.write(chip_price)
+    st.write(individual_group_prices(chip_prices, selected_date_range, selected_product))
 
 plot_min_price_trends(survey, selected_date_range, selected_product, location_groups, selected_groups)
