@@ -183,7 +183,6 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
                     group_df.loc[(group, location), date] = np.nan
         group_dfs[group] = group_df
     return group_dfs
-
 def append_df_to_gsheet(sheet_name, worksheet_index, df):
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -223,8 +222,11 @@ def append_df_to_gsheet(sheet_name, worksheet_index, df):
         st.error(f"Spreadsheet '{sheet_name}' not found.")
     except gspread.exceptions.WorksheetNotFound:
         st.error(f"Worksheet at index {worksheet_index} not found in spreadsheet '{sheet_name}'.")
+    except gspread.exceptions.APIError as e:
+        st.error(f"An error occurred: {e}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Ensure 'Timestamp' is a datetime and normalize to remove time
     data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
