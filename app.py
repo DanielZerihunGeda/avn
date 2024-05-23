@@ -147,7 +147,7 @@ with st.sidebar.form(key='price_form'):
                   # Replace with the path to your credentials file
             
                         # Append the data to the Google Sheet
-            append_df_to_gsheet('bekele','Sheet2', df)
+            append_df_to_gsheet('bekele',0, df)
             
             st.success('Data submitted successfully!')
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
