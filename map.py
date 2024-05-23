@@ -183,13 +183,25 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
                     group_df.loc[(group, location), date] = np.nan
         group_dfs[group] = group_df
     return group_dfs
-def append_df_to_gsheet(sheet_name, worksheet_index, df):
+
+def append_df_to_gsheet(sheet_name, df):
+    """
+    Appends a pandas DataFrame to a Google Sheet.
+
+    Args:
+        sheet_name (str): Name of the Google Sheet.
+        df (pandas.DataFrame): The DataFrame to append.
+
+    Raises:
+        StreamlitException: If errors occur during authorization or data update.
+    """
+
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
-    # Accessing Google credentials from Streamlit Secrets
+    # Accessing Google credentials from Streamlit Secrets (assuming you use Streamlit)
     credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
@@ -204,11 +216,11 @@ def append_df_to_gsheet(sheet_name, worksheet_index, df):
     }
     credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
-    client = gspread.authorize(credentials)
+    client = authorize(credentials)
 
     try:
-        spreadsheet = client.open(sheet_name)
-        worksheet = spreadsheet.get_worksheet(worksheet_index)  # Get the worksheet by index
+        spreadsheet = client.open(sheet_name)  # Use sheet_name here
+        worksheet = spreadsheet.worksheet(title=sheet_name)  # Use sheet_name here
 
         # Get the last row number with data in the worksheet
         last_row = len(worksheet.get_all_values()) + 1
@@ -218,14 +230,15 @@ def append_df_to_gsheet(sheet_name, worksheet_index, df):
 
         # Update the worksheet starting from the next empty row after the last row with data
         worksheet.update(f'A{last_row}:', new_rows)
-    except gspread.exceptions.SpreadsheetNotFound:
-        st.error(f"Spreadsheet '{sheet_name}' not found.")
-    except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Worksheet at index {worksheet_index} not found in spreadsheet '{sheet_name}'.")
-    except gspread.exceptions.APIError as e:
+    except WorksheetNotFound:
+        st.error(f"Worksheet '{sheet_name}' not found.")
+    except APIError as e:
         st.error(f"An error occurred: {e}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
+# Example usage in your Streamlit app (assuming you have a DataFrame named 'df')
+
 
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Ensure 'Timestamp' is a datetime and normalize to remove time
