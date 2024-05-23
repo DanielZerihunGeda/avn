@@ -34,7 +34,7 @@ def fetch_google_sheet_csv(url):
 
 st.set_page_config(layout="wide")
 
-st.title("DASHBOARD")
+st.title("ChipChip Product Pricing")
 st.sidebar.title("SIDE BAR")
 st.markdown("Select filters to visualize the dashboard")
 st.sidebar.markdown("This application is a Streamlit app used to track pricing survey")
@@ -157,7 +157,7 @@ visualize_price_by_location(filtered_survey, selected_date_range, selected_produ
 
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
-st.write("Local shops Overview")
+st.write(":blue[Local shops Overview]")
 st.write(df["Local Shops"])
 collapsible_table("Local Shops",df1["Local Shops"])
 st.write("Supermarkets Overview")
