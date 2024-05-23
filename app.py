@@ -35,9 +35,8 @@ def fetch_google_sheet_csv(url):
 st.set_page_config(layout="wide")
 
 st.title("ChipChip Product Pricing")
-st.sidebar.title("SIDE BAR")
-st.markdown("Select filters to visualize the dashboard")
-st.sidebar.markdown("This application is a Streamlit app used to track pricing survey")
+
+st.sidebar.markdown("Select filters to visualize the dashboard")
 
 url_1 = convert_google_sheet_url(st.secrets["url_1"])
 url = convert_google_sheet_url(st.secrets["url"])
