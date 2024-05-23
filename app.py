@@ -100,10 +100,10 @@ location_groups = {
                              'Distribution center 3 02', 'Distribution center Lemi kura/ Alem bank',
                              'Distribution center 1 Gerji (Raw)', 'Distribution center 2 Garment (Raw)',
                              'Distribution center Lemi kura'],
-    "Farm":['Mekele', 'Kobo', 'Dansha']
+    "Farm":['Mekele', 'Kobo', 'Dansha'],
+    "ChipChip":['Current daily volume (day prior) Yazz',
+       'Current daily volume (day prior) Chipchip']
 }
-
-col = st.columns((5.5, 3), gap='medium')
 
 cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
 reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for loc in survey['Location'].unique()}
