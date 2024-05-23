@@ -101,7 +101,7 @@ def individual_group_prices(df, selected_date_range, selected_product):
     pivot_df = df_filtered.pivot_table(index='Location', columns='Timestamp', values='Unit Price', aggfunc='mean')
     grouped_df = pivot_df.groupby('Location').sum()
     grouped_df['Total'] = grouped_df.sum(axis=1)
-    return grouped_df
+    return pivot_df
 def create_data_entry_form_and_return_csv():
     with st.form(key='data_entry_form'):
         st.write("Inside the form")
