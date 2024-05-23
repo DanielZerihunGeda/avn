@@ -11,13 +11,11 @@ from datetime import datetime
 import gspread
 #sheet loading based on sheet and workbook name
 def read_gsheet_to_df(sheet_name, worksheet_name):
-    # Define the scope
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
-    # Get credentials from Streamlit secrets
     credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
@@ -49,6 +47,7 @@ def read_gsheet_to_df(sheet_name, worksheet_name):
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
     return df
+
 def convert_google_sheet_url(url):
     pattern = r'https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)(/edit#gid=(\d+)|/edit.*)?'
     replacement = lambda m: f'https://docs.google.com/spreadsheets/d/{m.group(1)}/export?' + (f'gid={m.group(3)}&' if m.group(3) else '') + 'format=csv'
