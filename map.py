@@ -102,6 +102,15 @@ def individual_group_prices(df, selected_date_range, selected_product):
     grouped_df = pivot_df.groupby('Location').sum()
     grouped_df['Total'] = grouped_df.sum(axis=1)
     return pivot_df
+def individual_group_prices_(df, selected_date_range, selected_product):
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m/%d/%Y %H:%M')
+    df_filtered = df[(df['Timestamp'] >= pd.to_datetime(selected_date_range[0], format='%m/%d/%Y')) &
+                     (df['Timestamp'] <= pd.to_datetime(selected_date_range[1], format='%m/%d/%Y'))]
+    df_filtered = df_filtered[df_filtered['Products List'] == selected_product]
+    pivot_df = df_filtered.pivot_table(index='Location', columns='Timestamp', values='Volume', aggfunc='mean')
+    grouped_df = pivot_df.groupby('Location').sum()
+    grouped_df['Total'] = grouped_df.sum(axis=1)
+    return grouped_df
 def create_data_entry_form_and_return_csv():
     with st.form(key='data_entry_form'):
         st.write("Inside the form")
