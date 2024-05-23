@@ -162,7 +162,7 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
 
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
-filter_df_by_date_and_products(survey_4, selected_date_range, selected_product)
+# filter_df_by_date_and_products(survey_4, selected_date_range, selected_product)
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
 
