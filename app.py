@@ -147,7 +147,7 @@ for section in sections:
     collapsible_table(section, df1[section])
     st.write("<hr style='border-top: 2px solid white; margin: 10px 0;'>", unsafe_allow_html=True)
 text = f"chipchip Price Overview"
-    html_string = f"""
+html_string = f"""
     <span style="font-weight: bold; color: red;">{text}</span>
     """
 st.write(html_string, unsafe_allow_html=True)
