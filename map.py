@@ -183,34 +183,53 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
                     group_df.loc[(group, location), date] = np.nan
         group_dfs[group] = group_df
     return group_dfs
-def append_df_to_gsheet(sheet_name, df):
-
+def def append_df_to_gsheet(sheet_name, df):
+    # Define the scope for the Google Sheets API
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
     # Accessing Google credentials from Streamlit Secrets
-    credentials_info = st.secrets["google_credentials"]
+    credentials_info = {
+        "type": st.secrets["google_credentials"]["type"],
+        "project_id": st.secrets["google_credentials"]["project_id"],
+        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
+        "private_key": st.secrets["google_credentials"]["private_key"],
+        "client_email": st.secrets["google_credentials"]["client_email"],
+        "client_id": st.secrets["google_credentials"]["client_id"],
+        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
+        "token_uri": st.secrets["google_credentials"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
+    }
     credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
+    # Authorize and create a client to interact with the Google Sheets API
     client = gspread.authorize(credentials)
 
     try:
+        # Open the Google Sheet
         spreadsheet = client.open(sheet_name)
+        worksheet = spreadsheet.sheet1
+
+        # Get the last row number with data in the worksheet
+        last_row = len(worksheet.get_all_values()) + 1
+
+        # Convert the new DataFrame rows to a list of lists
+        new_rows = df.values.tolist()
+
+        # Update the worksheet starting from the next empty row after the last row with data
+        worksheet.update(f'A{last_row}:', new_rows)
     except gspread.exceptions.SpreadsheetNotFound:
         st.error(f"Spreadsheet '{sheet_name}' not found.")
-        return
-    try:
-        worksheet = spreadsheet.sheet1
     except gspread.exceptions.WorksheetNotFound:
         st.error(f"Worksheet not found in spreadsheet '{sheet_name}'.")
-        return
-    existing_data = worksheet.get_all_records()
-    existing_df = pd.DataFrame(existing_data)
-    combined_df = pd.concat([existing_df, df], ignore_index=True)
-    worksheet.clear()
-    worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+
+# Use the function to append data to your sheet
+# append_df_to_gsheet('Your_Sheet_Name', your_dataframe)
 
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Ensure 'Timestamp' is a datetime and normalize to remove time
