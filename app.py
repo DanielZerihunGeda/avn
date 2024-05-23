@@ -42,6 +42,7 @@ url_1 = convert_google_sheet_url(st.secrets["url_1"])
 url = convert_google_sheet_url(st.secrets["url"])
 url_2 = convert_google_sheet_url(st.secrets["url_2"])
 url_3 = convert_google_sheet_url(st.secrets["url_3"])
+url_4 = convert_google_sheet_url(st.secrets["url_4"])
 #st.write(f"Converted URL: {url},{url_1},{url_2},{url_3}") 
 
 try:
@@ -51,6 +52,7 @@ try:
     survey_3 = pd.read_csv(url_3)
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price','Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price','Product Origin ':'Location','Product List':'Products List'})
+    survey_4 =  pd.read_csv(url_4)
     st.write("Data loaded successfully!") 
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
@@ -60,7 +62,7 @@ survey_0['Timestamp'] = pd.to_datetime(survey_0['Timestamp'], format= "%m/%d/%Y 
 survey_1['Timestamp'] = pd.to_datetime(survey_1['Timestamp'], format="%Y-%m-%d %H:%M:%S").dt.date
 survey_2['Timestamp'] = pd.to_datetime(survey_2['Timestamp'], format= "%m/%d/%Y %H:%M:%S").dt.date
 survey_3['Timestamp'] = pd.to_datetime(survey_3['Timestamp'], format="%Y-%m-%d %H:%M:%S").dt.date
-survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3)
+survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,survey_4)
 
 default_start = pd.to_datetime('today') - pd.to_timedelta(7, unit='d')
 default_end = pd.to_datetime('today')
