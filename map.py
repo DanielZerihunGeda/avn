@@ -3,7 +3,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import altair as alt
 import re
+import numpy as np
 from io import StringIO
+from google.oauth2.service_account import Credentials
+import json
+from datetime import datetime
+import gspread
 def convert_google_sheet_url(url):
     pattern = r'https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)(/edit#gid=(\d+)|/edit.*)?'
     replacement = lambda m: f'https://docs.google.com/spreadsheets/d/{m.group(1)}/export?' + (f'gid={m.group(3)}&' if m.group(3) else '') + 'format=csv'
@@ -55,23 +60,6 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
     
     st.altair_chart(chart, use_container_width=True)
 
-def calculate_min_prices(df, selected_date_range, location_groups=None):
-    results_df = pd.DataFrame(columns=['Group', 'Products List', 'Min Price', 'Avg Price', 'Min Location'])
-    
-    for group, locations in location_groups.items():
-        group_data = df[(df['Timestamp'] >= selected_date_range[0]) & (df['Timestamp'] <= selected_date_range[1]) & 
-                        (df['Location'].isin(locations))]
-        
-        if not group_data.empty:
-            for product in group_data['Products List'].unique():
-                product_data = group_data[group_data['Products List'] == product]
-                min_price = product_data['Unit Price'].min()
-                avg_price = product_data['Unit Price'].mean()
-                min_location = product_data.loc[product_data['Unit Price'].idxmin()]['Location']
-                results_df.loc[len(results_df)] = [group, product, min_price, avg_price, min_location]
-    
-    return results_df
-
 def create_data_entry_form_and_return_csv():
     with st.form(key='data_entry_form'):
         st.write("Inside the form")
@@ -104,8 +92,6 @@ def create_data_entry_form_and_return_csv():
 def concatenate_dfs(*dfs):
     concatenated_df = pd.concat(dfs, ignore_index=True)
     return concatenated_df
-
-
 def display_max_dates_per_location_group(df, timestamp_col, location_groups):
     df[timestamp_col] = pd.to_datetime(df[timestamp_col])
     results = []
@@ -120,3 +106,170 @@ def display_max_dates_per_location_group(df, timestamp_col, location_groups):
             })
     results_df = pd.DataFrame(results)
     st.table(results_df)
+expander_icon_css = """
+<style>
+details[open] summary::before {
+    content: '−';
+}
+summary::before {
+    content: '+';
+    padding-right: 5px;
+}
+summary {
+    font-size: 18px;
+    font-weight: bold;
+}
+</style>
+"""
+def collapsible_table(title, dataframe):
+    # Inject custom CSS with the '+' icon
+    st.markdown(expander_icon_css, unsafe_allow_html=True)
+    
+    # Create the expander and add the DataFrame as a table to it
+    with st.expander(title):
+        st.dataframe(dataframe)
+def calculate_min_prices(data, selected_date_range, selected_product, location_groups):
+    # Ensure 'Timestamp' is a datetime and normalize to remove time
+    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
+    
+    # Filter data for the selected product and date range
+    product_data = data[(data['Products List'] == selected_product) &
+                        (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
+                        (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
+    
+    if product_data.empty:
+        return {group: pd.DataFrame() for group in location_groups}
+
+    date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
+    
+    # Create a DataFrame for each group
+    group_dfs = {}
+    for group, locations in location_groups.items():
+        metrics = ['Avg_Price', 'Min_Price', 'Min_Location']
+        multi_index = pd.MultiIndex.from_tuples([(group, metric) for metric in metrics], names=['Group', 'Metric'])
+        group_df = pd.DataFrame(index=multi_index, columns=date_range)
+        for date in date_range:
+            day_data = product_data[(product_data['Timestamp'] == date) & 
+                                    (product_data['Location'].isin(locations))]
+            if not day_data.empty:
+                group_df.loc[(group, 'Avg_Price'), date] = day_data['Unit Price'].mean()
+                group_df.loc[(group, 'Min_Price'), date] = day_data['Unit Price'].min()
+                min_location = day_data.loc[day_data['Unit Price'].idxmin(), 'Location']
+                group_df.loc[(group, 'Min_Location'), date] = min_location
+
+        group_dfs[group] = group_df
+    
+    return group_dfs
+
+def calculate_prices_by_location(data, selected_date_range, selected_product, location_groups):
+    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
+    product_data = data[(data['Products List'] == selected_product) &
+                        (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
+                        (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
+    if product_data.empty:
+        return {group: pd.DataFrame() for group in location_groups}
+    date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
+    group_dfs = {}
+    for group, locations in location_groups.items(): 
+        multi_index = pd.MultiIndex.from_product([[group], locations], names=['Group', 'Location'])
+        group_df = pd.DataFrame(index=multi_index, columns=date_range)
+        for location in locations:
+            location_data = product_data[product_data['Location'] == location]
+            for date in date_range:
+                date_data = location_data[location_data['Timestamp'] == date]
+                if not date_data.empty:
+                    group_df.loc[(group, location), date] = date_data['Unit Price'].iloc[0]
+                else:
+                    group_df.loc[(group, location), date] = np.nan
+        group_dfs[group] = group_df
+    return group_dfs
+def append_df_to_gsheet(sheet_name, df):
+
+    scope = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+
+    # Accessing Google credentials from Streamlit Secrets
+    credentials_info = st.secrets["google_credentials"]
+    credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
+
+    client = gspread.authorize(credentials)
+
+    try:
+        spreadsheet = client.open(sheet_name)
+    except gspread.exceptions.SpreadsheetNotFound:
+        st.error(f"Spreadsheet '{sheet_name}' not found.")
+        return
+    try:
+        worksheet = spreadsheet.sheet1
+    except gspread.exceptions.WorksheetNotFound:
+        st.error(f"Worksheet not found in spreadsheet '{sheet_name}'.")
+        return
+    existing_data = worksheet.get_all_records()
+    existing_df = pd.DataFrame(existing_data)
+    combined_df = pd.concat([existing_df, df], ignore_index=True)
+    worksheet.clear()
+    worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
+
+def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
+    # Ensure 'Timestamp' is a datetime and normalize to remove time
+    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
+    
+    # Filter data for the selected product and date range
+    product_data = data[(data['Products List'] == selected_product) &
+                        (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
+                        (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
+    
+    if product_data.empty:
+        return pd.DataFrame(columns=['Date', 'Location Group', 'Min_Price'])
+    
+    date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
+    
+    # Create a DataFrame to collect min prices for the selected groups
+    records = []
+    for group in selected_groups:
+        if group not in location_groups:
+            continue
+        locations = location_groups[group]
+        for date in date_range:
+            day_data = product_data[(product_data['Timestamp'] == date) & 
+                                    (product_data['Location'].isin(locations))]
+            if not day_data.empty:
+                min_price = day_data['Unit Price'].min()
+                records.append({'Date': date, 'Location Group': group, 'Min_Price': min_price})
+    
+    return pd.DataFrame(records)
+
+# Function to plot minimum price trends
+def plot_min_price_trends(data, selected_date_range, selected_product, location_groups, selected_groups):
+    # Calculate minimum prices for visualization
+    min_price_data = calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups)
+    
+    if min_price_data.empty:
+        st.error("No data available for the selected criteria.")
+        return
+    
+    # Create the Altair chart with both line and point marks
+    line = alt.Chart(min_price_data).mark_line().encode(
+        x=alt.X('Date:T', title='Date', axis=alt.Axis(format='%Y-%m-%d')),
+        y=alt.Y('Min_Price:Q', title='Minimum Price'),
+        color='Location Group:N',
+        tooltip=['Date:T', 'Location Group:N', 'Min_Price:Q']
+    )
+    
+    points = line.mark_point().encode(
+        opacity=alt.value(1),
+        size=alt.value(50)
+    )
+    
+    chart = line + points
+    
+    chart = chart.properties(
+        title=f"Minimum Prices Trend for {selected_product}",
+        width=800,
+        height=400
+    ).interactive()
+    
+    # Display the chart using Streamlit
+    st.altair_chart(chart)
