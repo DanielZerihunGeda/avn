@@ -52,6 +52,7 @@ try:
     chip_prices = read_gsheet_to_df('chip', 'chip_prices')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
+    volume = read_gsheet_to_df('chip', 'volume')
     
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
@@ -76,7 +77,7 @@ available_locations = filtered_survey['Location'].unique()
 selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
 end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
 chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
-
+chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
 combined = concatenate_dfs(survey,chip_prices)
 location_groups = {
     "Local Shops": ['benchmark location 1 Suk Bole', 'benchmark location 2 Suk Gulele',
@@ -122,7 +123,6 @@ with st.sidebar.form(key='price_form'):
             df = pd.DataFrame(data)
             append_df_to_gsheet('bekele', 'Sheet2', df)
             st.success('Data submitted successfully!')
-
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
     is_expanded = key_counter == 0
     with st.sidebar.expander(f"Pick Location ({group})", expanded=is_expanded):
@@ -131,9 +131,7 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
         selected_locations = st.multiselect("", locations_with_prices, key=unique_key)
         all_sorted_locations.extend([reverse_location_mapping[loc.split(' - ')[0]] for loc in selected_locations if loc.split(' - ')[0] in reverse_location_mapping])
     key_counter += 1
-
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
-
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
 df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
@@ -156,4 +154,5 @@ html_string = f"""
 st.write(html_string, unsafe_allow_html=True)
 
 st.write(chip_prices)
+st.write(chip_volume)
 plot_min_price_trends(combined, selected_date_range, selected_product, location_groups, selected_groups)
