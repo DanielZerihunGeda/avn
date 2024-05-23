@@ -54,8 +54,10 @@ try:
     survey_1 = read_gsheet_to_df('chip', 'Localshops') 
     survey_2 =  read_gsheet_to_df('chip', 'Distribution')
     survey_3 = read_gsheet_to_df('chip', 'Farm')
+    chip_prices = read_gsheet_to_df('chip', 'chip_prices')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
+    chip_price = individual_group_prices(chip_prices, selected_date_range, selected_product)
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
     st.stop()
