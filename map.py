@@ -185,23 +185,11 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
     return group_dfs
 
 def append_df_to_gsheet(sheet_name, df):
-    """
-    Appends a pandas DataFrame to a Google Sheet.
-
-    Args:
-        sheet_name (str): Name of the Google Sheet.
-        df (pandas.DataFrame): The DataFrame to append.
-
-    Raises:
-        StreamlitException: If errors occur during authorization or data update.
-    """
-
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
-    # Accessing Google credentials from Streamlit Secrets (assuming you use Streamlit)
     credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
@@ -216,29 +204,25 @@ def append_df_to_gsheet(sheet_name, df):
     }
     credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
-    client = authorize(credentials)
+    client = gspread.authorize(credentials)
 
     try:
-        spreadsheet = client.open(sheet_name)  # Use sheet_name here
-        worksheet = spreadsheet.worksheet(title=sheet_name)  # Use sheet_name here
+        spreadsheet = client.open(sheet_name)
+    except gspread.exceptions.SpreadsheetNotFound:
+        st.error(f"Spreadsheet '{sheet_name}' not found.")
+        return
 
-        # Get the last row number with data in the worksheet
-        last_row = len(worksheet.get_all_values()) + 1
+    try:
+        worksheet = spreadsheet.sheet1
+    except gspread.exceptions.WorksheetNotFound:
+        st.error(f"Worksheet not found in spreadsheet '{sheet_name}'.")
+        return
 
-        # Convert the new DataFrame rows to a list of lists
-        new_rows = df.values.tolist()
-
-        # Update the worksheet starting from the next empty row after the last row with data
-        worksheet.update(f'A{last_row}:', new_rows)
-    except WorksheetNotFound:
-        st.error(f"Worksheet '{sheet_name}' not found.")
-    except APIError as e:
-        st.error(f"An error occurred: {e}")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-
-# Example usage in your Streamlit app (assuming you have a DataFrame named 'df')
-
+    existing_data = worksheet.get_all_records()
+    existing_df = pd.DataFrame(existing_data)
+    combined_df = pd.concat([existing_df, df], ignore_index=True)
+    worksheet.clear()
+    worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
 
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Ensure 'Timestamp' is a datetime and normalize to remove time
