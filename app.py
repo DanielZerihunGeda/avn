@@ -47,8 +47,8 @@ url_1 = convert_google_sheet_url(st.secrets["url_1"])
 url = convert_google_sheet_url(st.secrets["url"])
 url_2 = convert_google_sheet_url(st.secrets["url_2"])
 url_3 = convert_google_sheet_url(st.secrets["url_3"])
-url_4 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=1966377483')
-url_5 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=172609533')
+# url_4 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=1966377483')
+# url_5 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=172609533')
 #st.write(f"Converted URL: {url},{url_1},{url_2},{url_3}") 
 
 try:
@@ -58,8 +58,8 @@ try:
     survey_3 = pd.read_csv(url_3)
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price','Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price','Product Origin ':'Location','Product List':'Products List'})
-    survey_4 =  pd.read_csv(url_4)
-    survey_5 =  pd.read_csv(url_5)
+    # survey_4 =  pd.read_csv(url_4)
+    # survey_5 =  pd.read_csv(url_5)
   
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
