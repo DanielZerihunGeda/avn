@@ -42,7 +42,7 @@ url_1 = convert_google_sheet_url(st.secrets["url_1"])
 url = convert_google_sheet_url(st.secrets["url"])
 url_2 = convert_google_sheet_url(st.secrets["url_2"])
 url_3 = convert_google_sheet_url(st.secrets["url_3"])
-url_4 = convert_google_sheet_url(st.secrets["url_4"])
+url_4 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=1966377483')
 #st.write(f"Converted URL: {url},{url_1},{url_2},{url_3}") 
 
 try:
