@@ -44,11 +44,6 @@ st.set_page_config(layout="wide")
 st.title("ChipChip Product Pricing")
 
 st.sidebar.markdown("Select filters to visualize the dashboard")
-
-url_1 = convert_google_sheet_url(st.secrets["url_1"])
-url_2 = convert_google_sheet_url(st.secrets["url_2"])
-url_3 = convert_google_sheet_url(st.secrets["url_3"])
-
 try:
     survey_0 = read_gsheet_to_df('chip', 'sunday')
     survey_1 = read_gsheet_to_df('chip', 'Localshops') 
