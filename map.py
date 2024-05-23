@@ -183,8 +183,8 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
                     group_df.loc[(group, location), date] = np.nan
         group_dfs[group] = group_df
     return group_dfs
-def def append_df_to_gsheet(sheet_name, df):
-    # Define the scope for the Google Sheets API
+
+def append_df_to_gsheet(sheet_name, worksheet_title, df):
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
@@ -205,13 +205,11 @@ def def append_df_to_gsheet(sheet_name, df):
     }
     credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
-    # Authorize and create a client to interact with the Google Sheets API
     client = gspread.authorize(credentials)
 
     try:
-        # Open the Google Sheet
         spreadsheet = client.open(sheet_name)
-        worksheet = spreadsheet.sheet1
+        worksheet = spreadsheet.worksheet(worksheet_title)  # Get the worksheet by title
 
         # Get the last row number with data in the worksheet
         last_row = len(worksheet.get_all_values()) + 1
@@ -224,13 +222,9 @@ def def append_df_to_gsheet(sheet_name, df):
     except gspread.exceptions.SpreadsheetNotFound:
         st.error(f"Spreadsheet '{sheet_name}' not found.")
     except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Worksheet not found in spreadsheet '{sheet_name}'.")
+        st.error(f"Worksheet '{worksheet_title}' not found in spreadsheet '{sheet_name}'.")
     except Exception as e:
         st.error(f"An error occurred: {e}")
-
-# Use the function to append data to your sheet
-# append_df_to_gsheet('Your_Sheet_Name', your_dataframe)
-
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Ensure 'Timestamp' is a datetime and normalize to remove time
     data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
