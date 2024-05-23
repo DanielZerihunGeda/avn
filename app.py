@@ -199,7 +199,8 @@ html_string = f"""
 st.write(html_string, unsafe_allow_html=True)
 st.write(df["Sunday Markets"])
 collapsible_table("Sunday Markets",df1["Sunday Markets"])
-
+st.write(df["Distribution Centers"])
+collapsible_table("Distribution Centers",df1["Distribution Centers"])
 html_string = f"""
 <hr style="border-top: 2px solid white; margin: 10px 0;">
 """
