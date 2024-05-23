@@ -13,7 +13,12 @@ import json
 from dotenv import load_dotenv
 import os
 from map import *
-
+def filter_df_by_date_and_products(df, selected_date_range, selected_products):
+    start_date, end_date = selected_date_range
+    mask_date = (df['Timestamp'] >= start_date) & (df['Timestamp'] <= end_date)
+    mask_products = df['Products List'].apply(lambda x: any(item in x for item in selected_products))
+    filtered_df = df[mask_date & mask_products]
+    return filtered_df
 
 def clean_location_name(location, filtered_survey):
     cleaned_name = re.sub(r'benchmark location \d+', '', location)
