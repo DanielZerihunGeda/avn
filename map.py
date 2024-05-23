@@ -183,13 +183,14 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
                     group_df.loc[(group, location), date] = np.nan
         group_dfs[group] = group_df
     return group_dfs
-
-def append_df_to_gsheet(sheet_name, df):
+def append_df_to_gsheet(sheet_name, worksheet_name, df):
+    # Define the scope
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
     ]
 
+    # Get credentials from Streamlit secrets
     credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
@@ -213,15 +214,19 @@ def append_df_to_gsheet(sheet_name, df):
         return
 
     try:
-        worksheet = spreadsheet.sheet1
+        worksheet = spreadsheet.worksheet(worksheet_name)
     except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Worksheet not found in spreadsheet '{sheet_name}'.")
+        st.error(f"Worksheet '{worksheet_name}' not found in spreadsheet '{sheet_name}'.")
         return
 
     existing_data = worksheet.get_all_records()
     existing_df = pd.DataFrame(existing_data)
     combined_df = pd.concat([existing_df, df], ignore_index=True)
+    
+    # Clear existing data in the worksheet
     worksheet.clear()
+    
+    # Update the worksheet with the combined data
     worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
 
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
