@@ -168,7 +168,7 @@ st.write(df["Local Shops"])
 collapsible_table("Local Shops",df1["Local Shops"])
 
 html_string = f"""
-<hr style="border-top: 2px solid red; margin: 10px 0;">
+<hr style="border-top: 2px solid white; margin: 10px 0;">
 """
 st.write(html_string, unsafe_allow_html=True)
 
@@ -181,7 +181,7 @@ st.write(df["Supermarkets"])
 collapsible_table("Supermarkets",df1["Supermarkets"])
 
 html_string = f"""
-<hr style="border-top: 2px solid red; margin: 10px 0;">
+<hr style="border-top: 2px solid white; margin: 10px 0;">
 """
 st.write(html_string, unsafe_allow_html=True)
 
@@ -194,13 +194,13 @@ st.write(df["Sunday Markets"])
 collapsible_table("Sunday Markets",df1["Sunday Markets"])
 
 html_string = f"""
-<hr style="border-top: 2px solid red; margin: 10px 0;">
+<hr style="border-top: 2px solid white; margin: 10px 0;">
 """
 st.write(html_string, unsafe_allow_html=True)
 
 text = "Farm Overview"
 html_string = f"""
-<span style="font-weight: bold; color: red;">{text}</span>
+<span style="font-weight: bold; color: white;">{text}</span>
 """
 st.write(html_string, unsafe_allow_html=True)
 st.write(df["Farm"])
