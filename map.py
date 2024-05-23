@@ -9,6 +9,46 @@ from google.oauth2.service_account import Credentials
 import json
 from datetime import datetime
 import gspread
+#sheet loading based on sheet and workbook name
+def read_gsheet_to_df(sheet_name, worksheet_name):
+    # Define the scope
+    scope = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+
+    # Get credentials from Streamlit secrets
+    credentials_info = {
+        "type": st.secrets["google_credentials"]["type"],
+        "project_id": st.secrets["google_credentials"]["project_id"],
+        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
+        "private_key": st.secrets["google_credentials"]["private_key"],
+        "client_email": st.secrets["google_credentials"]["client_email"],
+        "client_id": st.secrets["google_credentials"]["client_id"],
+        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
+        "token_uri": st.secrets["google_credentials"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
+    }
+    credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
+
+    client = gspread.authorize(credentials)
+
+    try:
+        spreadsheet = client.open(sheet_name)
+    except gspread.exceptions.SpreadsheetNotFound:
+        st.error(f"Spreadsheet '{sheet_name}' not found.")
+        return None
+
+    try:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        st.error(f"Worksheet '{worksheet_name}' not found in spreadsheet '{sheet_name}'.")
+        return None
+
+    data = worksheet.get_all_records()
+    df = pd.DataFrame(data)
+    return df
 def convert_google_sheet_url(url):
     pattern = r'https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)(/edit#gid=(\d+)|/edit.*)?'
     replacement = lambda m: f'https://docs.google.com/spreadsheets/d/{m.group(1)}/export?' + (f'gid={m.group(3)}&' if m.group(3) else '') + 'format=csv'
