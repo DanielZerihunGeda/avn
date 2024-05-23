@@ -12,7 +12,6 @@ from google.oauth2.service_account import Credentials
 import json
 from dotenv import load_dotenv
 import os
-from st_aggrid import AgGrid
 from map import *
 
 
