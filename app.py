@@ -160,18 +160,33 @@ df1 = calculate_prices_by_location(survey, selected_date_range, selected_product
 
 text = "Local shops Overview"
 html_string = f"""
-<span style="font-weight: bold; color: blue;">{text}</span>
+<span style="font-weight: bold; color: red;">{text}</span>
 """
 st.write(html_string, unsafe_allow_html=True)
 st.write(df["Local Shops"])
 collapsible_table("Local Shops",df1["Local Shops"])
-st.write("Supermarkets Overview")
+
+text = "Supermarkets Overview"
+html_string = f"""
+<span style="font-weight: bold; color: red;">{text}</span>
+"""
+st.write(html_string, unsafe_allow_html=True)
 st.write(df["Supermarkets"])
 collapsible_table("Supermarkets",df1["Supermarkets"])
-st.write("Sunday Markets Overview")
+
+text = "Sunday Markets Overview"
+html_string = f"""
+<span style="font-weight: bold; color: red;">{text}</span>
+"""
+st.write(html_string, unsafe_allow_html=True)
 st.write(df["Sunday Markets"])
 collapsible_table("Sunday Markets",df1["Sunday Markets"])
-st.write("Farm Overview")
+
+text = "Farm Overview"
+html_string = f"""
+<span style="font-weight: bold; color: red;">{text}</span>
+"""
+st.write(html_string, unsafe_allow_html=True)
 st.write(df["Farm"])
 collapsible_table("Farm", df1["Farm"])
 plot_min_price_trends(survey, selected_date_range, selected_product, location_groups, selected_groups)
