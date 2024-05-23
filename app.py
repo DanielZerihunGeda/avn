@@ -52,7 +52,7 @@ url_3 = convert_google_sheet_url(st.secrets["url_3"])
 #st.write(f"Converted URL: {url},{url_1},{url_2},{url_3}") 
 
 try:
-    survey_0 = pd.read_csv(url)
+    survey_0 =read_gsheet_to_df('chip', 'Sheet1')
     survey_1 = pd.read_csv(url_1)
     survey_2 = pd.read_csv(url_2)
     survey_3 = pd.read_csv(url_3)
