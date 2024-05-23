@@ -50,10 +50,10 @@ url_2 = convert_google_sheet_url(st.secrets["url_2"])
 url_3 = convert_google_sheet_url(st.secrets["url_3"])
 
 try:
-    survey_0 = read_gsheet_to_df('chip', 'Distribution')
-    survey_1 = pd.read_csv(url_1)
-    survey_2 = pd.read_csv(url_2)
-    survey_3 = pd.read_csv(url_3)
+    survey_0 = read_gsheet_to_df('chip', 'sunday')
+    survey_1 = read_gsheet_to_df('chip', 'Localshops') 
+    survey_2 =  read_gsheet_to_df('chip', 'Distribution')
+    survey_3 = read_gsheet_to_df('chip', 'Farm')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
 except Exception as e:
