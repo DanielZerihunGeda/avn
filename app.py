@@ -42,7 +42,7 @@ url_1 = convert_google_sheet_url(st.secrets["url_1"])
 url = convert_google_sheet_url(st.secrets["url"])
 url_2 = convert_google_sheet_url(st.secrets["url_2"])
 url_3 = convert_google_sheet_url(st.secrets["url_3"])
-url_4 = convert_google_sheet_url(st.secrets["url_4"])
+url_4 = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit#gid=1966377483')
 #st.write(f"Converted URL: {url},{url_1},{url_2},{url_3}") 
 
 try:
@@ -167,6 +167,11 @@ st.write(html_string, unsafe_allow_html=True)
 st.write(df["Local Shops"])
 collapsible_table("Local Shops",df1["Local Shops"])
 
+html_string = f"""
+<hr style="border-top: 2px solid red; margin: 10px 0;">
+"""
+st.write(html_string, unsafe_allow_html=True)
+
 text = "Supermarkets Overview"
 html_string = f"""
 <span style="font-weight: bold; color: red;">{text}</span>
@@ -174,6 +179,11 @@ html_string = f"""
 st.write(html_string, unsafe_allow_html=True)
 st.write(df["Supermarkets"])
 collapsible_table("Supermarkets",df1["Supermarkets"])
+
+html_string = f"""
+<hr style="border-top: 2px solid red; margin: 10px 0;">
+"""
+st.write(html_string, unsafe_allow_html=True)
 
 text = "Sunday Markets Overview"
 html_string = f"""
@@ -183,6 +193,10 @@ st.write(html_string, unsafe_allow_html=True)
 st.write(df["Sunday Markets"])
 collapsible_table("Sunday Markets",df1["Sunday Markets"])
 
+html_string = f"""
+<hr style="border-top: 2px solid red; margin: 10px 0;">
+"""
+st.write(html_string, unsafe_allow_html=True)
 
 text = "Farm Overview"
 html_string = f"""
