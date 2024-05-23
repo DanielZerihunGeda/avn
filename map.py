@@ -47,12 +47,6 @@ def read_gsheet_to_df(sheet_name, worksheet_name):
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
     return df
-
-def convert_google_sheet_url(url):
-    pattern = r'https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)(/edit#gid=(\d+)|/edit.*)?'
-    replacement = lambda m: f'https://docs.google.com/spreadsheets/d/{m.group(1)}/export?' + (f'gid={m.group(3)}&' if m.group(3) else '') + 'format=csv'
-    new_url = re.sub(pattern, replacement, url)
-    return new_url
 def visualize_price_by_location(df, selected_date_range, selected_product, selected_locations): 
     start_date, end_date = selected_date_range 
     start_date = pd.to_datetime(start_date) 
@@ -98,7 +92,22 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
     ).interactive() 
     
     st.altair_chart(chart, use_container_width=True)
+#CHIP INDIVIDUAL AND GROUP PRICES    
+def individual_group_prices(df, selected_date_range, selected_product):
+    # Step 1: Filter the DataFrame based on the selected date range and product
+    df_filtered = df[(df['Timestamp'] >= selected_date_range[0]) & (df['Timestamp'] <= selected_date_range[1])]
+    df_filtered = df_filtered[df_filtered['Products List'] == selected_product]
 
+    # Step 2: Pivot the filtered DataFrame
+    pivot_df = df_filtered.pivot(index='Location', columns='Timestamp', values='Unit Price')
+
+    # Step 3: Group by unique values in the 'Location' column
+    grouped_df = pivot_df.groupby('Location').sum()
+
+    # Step 4: Calculate the total for each unique value
+    grouped_df['Total'] = grouped_df.sum(axis=1)
+
+    return grouped_df
 def create_data_entry_form_and_return_csv():
     with st.form(key='data_entry_form'):
         st.write("Inside the form")
