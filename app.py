@@ -90,7 +90,8 @@ location_groups = {
                              'Distribution center 1 Gerji (Raw)', 'Distribution center 2 Garment (Raw)',
                              'Distribution center Lemi kura'],
     "Farm": ['Mekele', 'Kobo', 'Dansha'],
-    "ChipChip": ['Current daily volume (day prior) Yazz', 'Current daily volume (day prior) Chipchip']
+    "ChipChip": ['Chipchip price to customer individual',
+       'Chipchip price to customer group']
 }
 
 cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
