@@ -124,7 +124,7 @@ with st.sidebar.form(key='price_form'):
                 'Products List': selected_product
             }
             df = pd.DataFrame(data)
-            append_df_to_gsheet('bekele', 'Sheet2', df)
+            append_df_to_gsheet('chip', 'set_price', df)
             st.success('Data submitted successfully!')
 
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
