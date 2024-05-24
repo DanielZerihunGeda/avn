@@ -120,7 +120,7 @@ with st.sidebar.form(key='price_form'):
                 'Individual Price': [individual_price],
                 'Group Price': [group_price],
                 'Bulk Price': [bulk_price],
-                'Timestamp': [current_time.strftime("%Y-%m-%d %H:%M:%S")],
+                'Timestamp': [current_time.strftime("%Y-%m-%d")],
                 'Products List': selected_product
             }
             df = pd.DataFrame(data)
