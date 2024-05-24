@@ -124,8 +124,8 @@ with st.sidebar.form(key='price_form'):
              } 
              df = pd.DataFrame(data)
 
-            append_df_to_gsheet('bekele', 'Sheet2', df)
-            st.success('Data submitted successfully!')
+        append_df_to_gsheet('bekele', 'Sheet2', df)
+        st.success('Data submitted successfully!')
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
     is_expanded = key_counter == 0
     with st.sidebar.expander(f"Pick Location ({group})", expanded=is_expanded):
