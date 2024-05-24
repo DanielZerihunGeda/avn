@@ -104,32 +104,26 @@ selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison"
 
 key_counter = 0
 
-with st.sidebar.form(key='price_form'):
-    individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
-    group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
-    bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
-    # Input for the number of days to include in the DataFrame
-    number_of_days = st.number_input("Enter number of days from today:", min_value=0, value=3, step=1)
-    submit_button = st.form_submit_button(label='Submit')
+with st.sidebar.form(key='price_form'): 
+     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f") 
+     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f") 
+     bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f") 
+     submit_button = st.form_submit_button(label='Submit') 
+  
+     if submit_button: 
+         if individual_price == 0 and group_price == 0 and bulk_price == 0: 
+             st.warning("Please set at least one price.") 
+         else: 
+             current_time = datetime.now() 
+             data = { 
+                 'Individual Price': [individual_price], 
+                 'Group Price': [group_price], 
+                 'Bulk Price': [bulk_price], 
+                 'Timestamp': [current_time.strftime("%Y-%m-%d %H:%M:%S")] 
+                 'Products List': selected_product
+             } 
+             df = pd.DataFrame(data)
 
-    if submit_button:
-        if individual_price == 0 and group_price == 0 and bulk_price == 0:
-            st.warning("Please set at least one price.")
-        else:
-            # Assuming 'selected_product' is defined elsewhere in your Streamlit app
-            current_date = datetime.now().date()
-            date_list = [current_date + timedelta(days=i) for i in range(number_of_days)]
-            product_list = [selected_product] * number_of_days  # Repeat the selected product
-
-            # Create the DataFrame
-            data = {
-                'Date': date_list,
-                'Products List': product_list,
-                'Individual Price': [individual_price] * number_of_days,
-                'Group Price': [group_price] * number_of_days,
-                'Bulk Price': [bulk_price] * number_of_days
-            }
-            df = pd.DataFrame(data)
             append_df_to_gsheet('bekele', 'Sheet2', df)
             st.success('Data submitted successfully!')
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
