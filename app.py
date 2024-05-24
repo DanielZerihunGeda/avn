@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import re
 import requests
 from io import StringIO
-from datetime import datetime
+from datetime import datetime, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 import json
