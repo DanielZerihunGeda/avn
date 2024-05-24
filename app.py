@@ -13,6 +13,7 @@ import json
 from dotenv import load_dotenv
 import os
 from map import *
+
 def clean_location_name(location, filtered_survey):
     if not isinstance(location, str):
         location = str(location)
@@ -46,14 +47,14 @@ st.title("ChipChip Product Pricing")
 st.sidebar.markdown("Select filters to visualize the dashboard")
 try:
     survey_0 = read_gsheet_to_df('chip', 'sunday')
-    survey_1 = read_gsheet_to_df('chip', 'Localshops') 
-    survey_2 =  read_gsheet_to_df('chip', 'Distribution')
+    survey_1 = read_gsheet_to_df('chip', 'Localshops')
+    survey_2 = read_gsheet_to_df('chip', 'Distribution')
     survey_3 = read_gsheet_to_df('chip', 'Farm')
     chip_prices = read_gsheet_to_df('chip', 'chip_prices')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
     volume = read_gsheet_to_df('chip', 'volume')
-    
+
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
     st.stop()
@@ -78,7 +79,7 @@ selected_product = st.sidebar.selectbox("Select Product", available_products, ke
 end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
 chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
 chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
-combined = concatenate_dfs(survey,chip_prices)
+combined = concatenate_dfs(survey, chip_prices)
 location_groups = {
     "Local Shops": ['benchmark location 1 Suk Bole', 'benchmark location 2 Suk Gulele',
                     'benchmark location 3 Suk Yeka', 'benchmark location 4 Suk Arada',
@@ -87,14 +88,14 @@ location_groups = {
                      'benchmark location 2 supermarket Purpose black',
                      'benchmark location 1 supermarket Queens - per 5 pieces'],
     "Sunday Markets": ['benchmark location 1 Sunday market Piaza', 'benchmark location 2 Sunday market Bole',
-                       'benchmark location 3 Sunday market Gerji'],        
+                       'benchmark location 3 Sunday market Gerji'],
     "Distribution Centers": ['Distribution center 1 Gerji', 'Distribution center 2 Garment',
                              'Distribution center 3 02', 'Distribution center Lemi kura/ Alem bank',
                              'Distribution center 1 Gerji (Raw)', 'Distribution center 2 Garment (Raw)',
                              'Distribution center Lemi kura'],
     "Farm": ['Mekele', 'Kobo', 'Dansha'],
     "ChipChip": ['Chipchip price to customer individual',
-       'Chipchip price to customer group']
+                 'Chipchip price to customer group']
 }
 
 cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
@@ -104,28 +105,28 @@ selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison"
 
 key_counter = 0
 
-with st.sidebar.form(key='price_form'): 
-     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f") 
-     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f") 
-     bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f") 
-     submit_button = st.form_submit_button(label='Submit') 
-  
-     if submit_button: 
-         if individual_price == 0 and group_price == 0 and bulk_price == 0: 
-             st.warning("Please set at least one price.") 
-         else: 
-             current_time = datetime.now() 
-             data = { 
-                 'Individual Price': [individual_price], 
-                 'Group Price': [group_price], 
-                 'Bulk Price': [bulk_price], 
-                 'Timestamp': [current_time.strftime("%Y-%m-%d %H:%M:%S")], 
-                 'Products List': selected_product
-             } 
-             df = pd.DataFrame(data)
+with st.sidebar.form(key='price_form'):
+    individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
+    group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
+    bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
+    submit_button = st.form_submit_button(label='Submit')
 
-        append_df_to_gsheet('bekele', 'Sheet2', df)
-        st.success('Data submitted successfully!')
+    if submit_button:
+        if individual_price == 0 and group_price == 0 and bulk_price == 0:
+            st.warning("Please set at least one price.")
+        else:
+            current_time = datetime.now()
+            data = {
+                'Individual Price': [individual_price],
+                'Group Price': [group_price],
+                'Bulk Price': [bulk_price],
+                'Timestamp': [current_time.strftime("%Y-%m-%d %H:%M:%S")],
+                'Products List': selected_product
+            }
+            df = pd.DataFrame(data)
+            append_df_to_gsheet('bekele', 'Sheet2', df)
+            st.success('Data submitted successfully!')
+
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
     is_expanded = key_counter == 0
     with st.sidebar.expander(f"Pick Location ({group})", expanded=is_expanded):
@@ -134,6 +135,7 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
         selected_locations = st.multiselect("", locations_with_prices, key=unique_key)
         all_sorted_locations.extend([reverse_location_mapping[loc.split(' - ')[0]] for loc in selected_locations if loc.split(' - ')[0] in reverse_location_mapping])
     key_counter += 1
+
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
 df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
@@ -150,6 +152,7 @@ for section in sections:
     st.write(df[section])
     collapsible_table(section, df1[section])
     st.write("<hr style='border-top: 2px solid white; margin: 10px 0;'>", unsafe_allow_html=True)
+
 text = f"chipchip Price Overview"
 html_string = f"""
     <span style="font-weight: bold; color: red;">{text}</span>
