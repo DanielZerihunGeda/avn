@@ -7,7 +7,7 @@ import numpy as np
 from io import StringIO
 from google.oauth2.service_account import Credentials
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import gspread
 #sheet loading based on sheet and workbook name
 def read_gsheet_to_df(sheet_name, worksheet_name):
