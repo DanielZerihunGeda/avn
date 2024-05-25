@@ -49,7 +49,7 @@ try:
     survey_0 = read_gsheet_to_df('chip', 'sunday')
     survey_1 = read_gsheet_to_df('chip', 'Localshops')
     survey_2 = read_gsheet_to_df('chip', 'Distribution')
-    survey_3 = read_gsheet_to_df('chip', 'Farm')
+    survey_3 = read_gsheet_to_df('chip', 'Farm_')
     chip_prices = read_gsheet_to_df('chip', 'chip_prices')
     survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin': 'Location', 'Product List': 'Products List'})
