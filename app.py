@@ -93,7 +93,8 @@ location_groups = {
                              'Distribution center 3 02', 'Distribution center Lemi kura/ Alem bank',
                              'Distribution center 1 Gerji (Raw)', 'Distribution center 2 Garment (Raw)',
                              'Distribution center Lemi kura'],
-    "Farm": ['Mekele', 'Kobo', 'Dansha'],
+    "Farm": ['Kobo', 'Dansha', 'Sela Dingayi(Sasit)', 'Mekele', 'Asella',
+       'Koka', 'Bishoftu', 'Meki', 'Other option', 'Shewa robit'],
     "ChipChip": ['Chipchip price to customer individual',
                  'Chipchip price to customer group']
 }
