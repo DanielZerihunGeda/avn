@@ -138,7 +138,8 @@ for location in survey["Location"].unique():
 cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
 reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for loc in survey['Location'].unique()}
 all_sorted_locations = []
-selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison", options=list(location_groups.keys()), default=list(location_groups.keys()))
+selected_groups_default = [list(location_groups.keys())[5], list(location_groups.keys())[3], list(location_groups.keys())[2]]
+selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison", options=list(location_groups.keys()), default=selected_groups_default)
 
 key_counter = 0
 
