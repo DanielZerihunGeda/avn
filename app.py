@@ -12,6 +12,7 @@ from google.oauth2.service_account import Credentials
 import json
 from dotenv import load_dotenv
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from map import *
 
 def clean_location_name(location, filtered_survey):
@@ -45,15 +46,47 @@ st.set_page_config(layout="wide")
 st.title("ChipChip Product Pricing")
 
 st.sidebar.markdown("Select filters to visualize the dashboard")
+
+def fetch_data(sheet_name, worksheet_name):
+    try:
+        return read_gsheet_to_df(sheet_name, worksheet_name)
+    except Exception as e:
+        st.error(f"Failed to load {worksheet_name} into DataFrame: {e}")
+        return None
+
+sheets_and_worksheets = [
+    ('chip', 'sunday'),
+    ('chip', 'Localshops'),
+    ('chip', 'Distribution'),
+    ('chip', 'Farm_'),
+    ('chip', 'chip_prices'),
+    ('chip', 'volume')
+]
+
+# Fetch data concurrently
+data_frames = {}
+with ThreadPoolExecutor() as executor:
+    future_to_sheet = {executor.submit(fetch_data, sheet, worksheet): worksheet for sheet, worksheet in sheets_and_worksheets}
+    for future in as_completed(future_to_sheet):
+        worksheet_name = future_to_sheet[future]
+        try:
+            data_frames[worksheet_name] = future.result()
+        except Exception as e:
+            st.error(f"Failed to load data from {worksheet_name}: {e}")
+
+# Ensure loading and renaming of survey_3 are within try-except block
 try:
-    survey_0 = read_gsheet_to_df('chip', 'sunday')
-    survey_1 = read_gsheet_to_df('chip', 'Localshops')
-    survey_2 = read_gsheet_to_df('chip', 'Distribution')
-    survey_3 = read_gsheet_to_df('chip', 'Farm_')
-    chip_prices = read_gsheet_to_df('chip', 'chip_prices')
-    survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
-    survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin': 'Location', 'Product List': 'Products List'})
-    volume = read_gsheet_to_df('chip', 'volume')
+    survey_0 = data_frames.get('sunday')
+    survey_1 = data_frames.get('Localshops')
+    survey_2 = data_frames.get('Distribution')
+    survey_3 = data_frames.get('Farm_')
+    chip_prices = data_frames.get('chip_prices')
+    volume = data_frames.get('volume')
+
+    if survey_2 is not None:
+        survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
+    if survey_3 is not None:
+        survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin': 'Location', 'Product List': 'Products List'})
 
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
