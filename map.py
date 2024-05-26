@@ -9,7 +9,16 @@ from google.oauth2.service_account import Credentials
 import json
 from datetime import datetime, timedelta
 import gspread
-#sheet loading based on sheet and workbook name
+import numpy
+import _thread
+import weakref
+
+def no_op_hash(obj):
+    return str(obj)
+def weak_method_hash(obj):
+    return str(obj)
+
+@st.cache_data(hash_funcs={_thread.RLock: no_op_hash, weakref.WeakMethod: weak_method_hash}, ttl=86400)
 def read_gsheet_to_df(sheet_name, worksheet_name):
     scope = [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -92,7 +101,7 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
     ).interactive() 
     
     st.altair_chart(chart, use_container_width=True)
-#CHIP INDIVIDUAL AND GROUP PRICES   
+#CHIP INDIVIDUAL AND GROUP PRICES
 def individual_group_prices(df, selected_date_range, selected_product):
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m/%d/%Y %H:%M')
     df_filtered = df[(df['Timestamp'] >= pd.to_datetime(selected_date_range[0], format='%m/%d/%Y')) &
@@ -102,6 +111,7 @@ def individual_group_prices(df, selected_date_range, selected_product):
     grouped_df = pivot_df.groupby('Location').sum()
     grouped_df['Total'] = grouped_df.sum(axis=1)
     return pivot_df
+
 def individual_group_prices_(df, selected_date_range, selected_product):
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m/%d/%Y %H:%M')
     df_filtered = df[(df['Timestamp'] >= pd.to_datetime(selected_date_range[0], format='%m/%d/%Y')) &
@@ -111,38 +121,11 @@ def individual_group_prices_(df, selected_date_range, selected_product):
     grouped_df = pivot_df.groupby('Location').sum()
     grouped_df['Total'] = grouped_df.sum(axis=1)
     return grouped_df
-def create_data_entry_form_and_return_csv():
-    with st.form(key='data_entry_form'):
-        st.write("Inside the form")
-        url = convert_google_sheet_url('https://docs.google.com/spreadsheets/d/1QJi3WJoBHQ9X92ezeTE8WHZM3gCQMJweOXmLmcw-phA/edit?usp=sharing')
-        survey = pd.read_csv(url)
-        col1, col2 = st.columns(2)
-        options = col1.selectbox("select product",tuple(survey['Products List'].unique()))
-        date_input = col2.date_input(label='Enter a date')
-        st.write("insert price for each benchmarks")
-        number_inputs = {}
-        for i in survey['Location'].unique():
-            number_inputs[i]=st.number_input(label = f'{i}')
-        submitted = st.form_submit_button('Submit')
-        if submitted:
-            form_data = {
-                'Text': [text_input],
-                'Number': [number_input],
-                'Date': [date_input],
-                'Time': [time_input]
-            }
-            df = pd.DataFrame(form_data)
-            csv = df.to_csv(index=False)
-            csv_buffer = StringIO(csv)
-            st.download_button(
-                label="Download data as CSV",
-                data=csv_buffer,
-                file_name='form_data.csv',
-                mime='text/csv',
-            )
+
 def concatenate_dfs(*dfs):
     concatenated_df = pd.concat(dfs, ignore_index=True)
     return concatenated_df
+
 def display_max_dates_per_location_group(df, timestamp_col, location_groups):
     df[timestamp_col] = pd.to_datetime(df[timestamp_col])
     results = []
@@ -172,18 +155,14 @@ summary {
 }
 </style>
 """
+
 def collapsible_table(title, dataframe):
-    # Inject custom CSS with the '+' icon
-    st.markdown(expander_icon_css, unsafe_allow_html=True)
-    
-    # Create the expander and add the DataFrame as a table to it
+    st.markdown(expander_icon_css, unsafe_allow_html=True) #Custom css
     with st.expander(title):
         st.dataframe(dataframe)
+
 def calculate_min_prices(data, selected_date_range, selected_product, location_groups):
-    # Ensure 'Timestamp' is a datetime and normalize to remove time
-    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
-    
-    # Filter data for the selected product and date range
+    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize() # Normaliztion Timestamp 
     product_data = data[(data['Products List'] == selected_product) &
                         (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
                         (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
@@ -192,8 +171,6 @@ def calculate_min_prices(data, selected_date_range, selected_product, location_g
         return {group: pd.DataFrame() for group in location_groups}
 
     date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
-    
-    # Create a DataFrame for each group
     group_dfs = {}
     for group, locations in location_groups.items():
         metrics = ['Avg_Price', 'Min_Price', 'Min_Location']
@@ -209,7 +186,6 @@ def calculate_min_prices(data, selected_date_range, selected_product, location_g
                 group_df.loc[(group, 'Min_Location'), date] = min_location
 
         group_dfs[group] = group_df
-    
     return group_dfs
 
 def calculate_prices_by_location(data, selected_date_range, selected_product, location_groups):
@@ -217,23 +193,32 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
     product_data = data[(data['Products List'] == selected_product) &
                         (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
                         (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
+
     if product_data.empty:
         return {group: pd.DataFrame() for group in location_groups}
+    
     date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
     group_dfs = {}
-    for group, locations in location_groups.items(): 
+    
+    for group, locations in location_groups.items():
         multi_index = pd.MultiIndex.from_product([[group], locations], names=['Group', 'Location'])
         group_df = pd.DataFrame(index=multi_index, columns=date_range)
-        for location in locations:
+
+        # Create an empty array to hold the unit prices
+        price_array = np.full((len(locations), len(date_range)), np.nan)
+
+        for i, location in enumerate(locations):
             location_data = product_data[product_data['Location'] == location]
-            for date in date_range:
+            for j, date in enumerate(date_range):
                 date_data = location_data[location_data['Timestamp'] == date]
                 if not date_data.empty:
-                    group_df.loc[(group, location), date] = date_data['Unit Price'].iloc[0]
-                else:
-                    group_df.loc[(group, location), date] = np.nan
+                    price_array[i, j] = date_data['Unit Price'].iloc[0]
+
+        group_df.iloc[:, :] = price_array
         group_dfs[group] = group_df
+
     return group_dfs
+
 def append_df_to_gsheet(sheet_name, worksheet_name, df):
     # Define the scope
     scope = [
@@ -257,7 +242,7 @@ def append_df_to_gsheet(sheet_name, worksheet_name, df):
     credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
     client = gspread.authorize(credentials)
-
+    
     try:
         spreadsheet = client.open(sheet_name)
     except gspread.exceptions.SpreadsheetNotFound:
@@ -309,7 +294,6 @@ def calculate_min_prices_for_viz(data, selected_date_range, selected_product, lo
     
     return pd.DataFrame(records)
 
-# Function to plot minimum price trends
 def plot_min_price_trends(data, selected_date_range, selected_product, location_groups, selected_groups):
     # Calculate minimum prices for visualization
     min_price_data = calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups)
