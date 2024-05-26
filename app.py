@@ -95,8 +95,8 @@ except Exception as e:
 survey_0['Timestamp'] = pd.to_datetime(survey_0['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
 survey_1['Timestamp'] = pd.to_datetime(survey_1['Timestamp'], format="%Y-%m-%d %H:%M:%S").dt.date
 survey_2['Timestamp'] = pd.to_datetime(survey_2['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
-survey_3['Timestamp'] = pd.to_datetime(survey_3['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
-survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3)
+chip_prices['Timestamp'] = pd.to_datetime(chip_prices['Timestamp'], format="%m/%d/%Y %H:%M").dt.date
+survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,chip_prices)
 
 default_start = pd.to_datetime('today') - pd.to_timedelta(7, unit='d')
 default_end = pd.to_datetime('today')
