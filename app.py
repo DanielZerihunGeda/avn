@@ -121,7 +121,7 @@ location_groups = {
     "Farm": survey_3["Location"].unique(),
     "ChipChip": []
 }
-for location in survey["Location"]:
+for location in survey["Location"].unique():
     if re.search(r'suk', location, re.IGNORECASE):
         location_groups["Local Shops"].append(location)
     elif re.search(r'supermarket', location, re.IGNORECASE):
