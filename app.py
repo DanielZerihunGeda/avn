@@ -95,6 +95,7 @@ except Exception as e:
 survey_0['Timestamp'] = pd.to_datetime(survey_0['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
 survey_1['Timestamp'] = pd.to_datetime(survey_1['Timestamp'], format="%Y-%m-%d %H:%M:%S").dt.date
 survey_2['Timestamp'] = pd.to_datetime(survey_2['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
+survey_3['Timestamp'] = pd.to_datetime(survey_3['Timestamp'], format="%m/%d/%Y %H:%M:%S").dt.date
 chip_prices['Timestamp'] = pd.to_datetime(chip_prices['Timestamp'], format="%m/%d/%Y %H:%M").dt.date
 survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,chip_prices)
 
@@ -110,9 +111,10 @@ available_locations = filtered_survey['Location'].unique()
 
 selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
 end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
-chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
+avg_min_chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
 chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
 combined = concatenate_dfs(survey, chip_prices)
+
 location_groups = {
     "Local Shops": [],
     "Supermarkets": [],
@@ -194,6 +196,6 @@ html_string = f"""
     """
 st.write(html_string, unsafe_allow_html=True)
 
-st.write(chip_prices)
+st.write(avg_min_chip_prices)
 st.write(chip_volume)
 plot_min_price_trends(combined, selected_date_range, selected_product, location_groups, selected_groups)
