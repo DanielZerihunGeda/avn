@@ -81,24 +81,25 @@ chip_prices = individual_group_prices(chip_prices, selected_date_range, selected
 chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
 combined = concatenate_dfs(survey, chip_prices)
 location_groups = {
-    "Local Shops": ['benchmark location 1 Suk Bole', 'benchmark location 2 Suk Gulele',
-                    'benchmark location 3 Suk Yeka', 'benchmark location 4 Suk Arada',
-                    'benchmark location 5 Suk Lideta', 'benchmark location 6 Suk Kolfe'],
-    "Supermarkets": ['benchmark location 1 supermarket Queens',
-                     'benchmark location 2 supermarket Purpose black',
-                     'benchmark location 1 supermarket Queens - per 5 pieces'],
-    "Sunday Markets": ['benchmark location 1 Sunday market Piaza', 'benchmark location 2 Sunday market Bole',
-                       'benchmark location 3 Sunday market Gerji'],
-    "Distribution Centers": ['Distribution center 1 Gerji', 'Distribution center 2 Garment',
-                             'Distribution center 3 02', 'Distribution center Lemi kura/ Alem bank',
-                             'Distribution center 1 Gerji (Raw)', 'Distribution center 2 Garment (Raw)',
-                             'Distribution center Lemi kura'],
-    "Farm": ['Kobo', 'Dansha', 'Sela Dingayi(Sasit)', 'Mekele', 'Asella',
-       'Koka', 'Bishoftu', 'Meki', 'Other option', 'Shewa robit'],
-    "ChipChip": ['Chipchip price to customer individual',
-                 'Chipchip price to customer group']
+    "Local Shops": [],
+    "Supermarkets": [],
+    "Sunday Markets": [],
+    "Distribution Centers":[],
+    "Farm": survey_3["Location"].unique(),
+    "ChipChip": []
 }
-
+for location in survey["Location"]:
+    if re.search(r'suk', location, re.IGNORECASE):
+        location_groups["Local Shops"].append(location)
+    elif re.search(r'supermarket', location, re.IGNORECASE):
+        location_groups["Supermarkets"].append(location)
+    elif re.search(r'sunday', location, re.IGNORECASE):
+        location_groups["Sunday Markets"].append(location)
+    elif re.search(r'Distribution center', location, re.IGNORECASE):
+        location_groups["Distribution Centers"].append(location)
+    elif re.search(r'Chipchip', location, re.IGNORECASE):
+        location_groups["ChipChip"].append(location)
+    
 cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
 reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for loc in survey['Location'].unique()}
 all_sorted_locations = []
