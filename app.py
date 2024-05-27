@@ -86,7 +86,7 @@ try:
     if survey_2 is not None:
         survey_2 = survey_2.rename(columns={'Buying Price': 'Unit Price', 'Location ': 'Location', 'Product List': 'Products List'})
     if survey_3 is not None:
-        survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin': 'Location', 'Product List': 'Products List'})
+        survey_3 = survey_3.rename(columns={'Buying Price per Kg ': 'Unit Price', 'Product Origin ': 'Location', 'Product List': 'Products List'})
 
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
