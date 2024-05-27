@@ -73,7 +73,7 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
     st.markdown(f"### Price Visualization for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
     
     if filtered_data.empty: 
-        st.markdown("No data available for the selected parameters.") 
+        st.markdown(" ") 
         return 
     
     # Calculate average price or use 'Unit Price' directly if no average calculation is needed
