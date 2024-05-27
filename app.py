@@ -97,7 +97,7 @@ survey_1.iloc[:, 2] = pd.to_datetime(survey_1.iloc[:, 2], format="%Y-%m-%d %H:%M
 survey_2.iloc[:, 0] = pd.to_datetime(survey_2.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
 survey_3.iloc[:, 0] = pd.to_datetime(survey_3.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
 chip_prices.iloc[:, 1] = pd.to_datetime(chip_prices.iloc[:, 1], format="%m/%d/%Y %H:%M").dt.date
-survey = concatenate_dfs(survey_0, survey_1, survey_2,survey_3, chip_prices)
+survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,chip_prices)
 
 default_start = pd.to_datetime('today') - pd.to_timedelta(7, unit='d')
 default_end = pd.to_datetime('today')
@@ -113,7 +113,7 @@ selected_product = st.sidebar.selectbox("Select Product", available_products, ke
 end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
 avg_min_chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
 chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
-combined = concatenate_dfs(survey, chip_prices)
+combined = concatenate_dfs(survey)
 
 location_groups = {
     "Local Shops": [],
@@ -140,6 +140,7 @@ reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for l
 all_sorted_locations = []
 selected_groups_default = [list(location_groups.keys())[5], list(location_groups.keys())[3], list(location_groups.keys())[2]]
 selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison", options=list(location_groups.keys()), default=selected_groups_default)
+
 
 key_counter = 0
 
