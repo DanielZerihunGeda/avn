@@ -74,7 +74,6 @@ with ThreadPoolExecutor() as executor:
         except Exception as e:
             st.error(f"Failed to load data from {worksheet_name}: {e}")
 
-# Ensure loading and renaming of survey_3 are within try-except block
 try:
     survey_0 = data_frames.get('sunday')
     survey_1 = data_frames.get('Localshops')
@@ -91,29 +90,37 @@ try:
 except Exception as e:
     st.error(f"Failed to load data into DataFrame: {e}")
     st.stop()
-
-survey_0.iloc[:, 0] = pd.to_datetime(survey_0.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
-survey_1.iloc[:, 2] = pd.to_datetime(survey_1.iloc[:, 2], format="%Y-%m-%d %H:%M:%S").dt.date
-survey_2.iloc[:, 0] = pd.to_datetime(survey_2.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
-survey_3.iloc[:, 0] = pd.to_datetime(survey_3.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
-chip_prices.iloc[:, 1] = pd.to_datetime(chip_prices.iloc[:, 1], format="%m/%d/%Y %H:%M").dt.date
-survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,chip_prices)
-
-default_start = pd.to_datetime('today') - pd.to_timedelta(7, unit='d')
-default_end = pd.to_datetime('today')
-start_date = st.sidebar.date_input("From", value=default_start, key="start_date")
-end_date = st.sidebar.date_input("To", value=default_end, key="end_date")
-selected_date_range = (start_date, end_date)
-
-filtered_survey = survey[(survey['Timestamp'] >= start_date) & (survey['Timestamp'] <= end_date)]
-available_products = filtered_survey['Products List'].unique()
-available_locations = filtered_survey['Location'].unique()
-
-selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
-end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
-avg_min_chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
-chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
-combined = concatenate_dfs(survey)
+try: 
+    survey_0.iloc[:, 0] = pd.to_datetime(survey_0.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
+    survey_1.iloc[:, 2] = pd.to_datetime(survey_1.iloc[:, 2], format="%Y-%m-%d %H:%M:%S").dt.date
+    survey_2.iloc[:, 0] = pd.to_datetime(survey_2.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
+    survey_3.iloc[:, 0] = pd.to_datetime(survey_3.iloc[:, 0], format="%m/%d/%Y %H:%M:%S").dt.date
+    chip_prices.iloc[:, 1] = pd.to_datetime(chip_prices.iloc[:, 1], format="%m/%d/%Y %H:%M").dt.date
+    survey = concatenate_dfs(survey_0, survey_1, survey_2, survey_3,chip_prices)
+except Exception as e:
+    st.error(f'')
+    st.stop()
+try:
+    default_start = pd.to_datetime('today') - pd.to_timedelta(7, unit='d')
+    default_end = pd.to_datetime('today')
+    start_date = st.sidebar.date_input("From", value=default_start, key="start_date")
+    end_date = st.sidebar.date_input("To", value=default_end, key="end_date")
+    selected_date_range = (start_date, end_date)
+except Exception as e:
+    st.error(f'')
+    st.stop()
+try:
+    filtered_survey = survey[(survey['Timestamp'] >= start_date) & (survey['Timestamp'] <= end_date)]
+    available_products = filtered_survey['Products List'].unique()
+    available_locations = filtered_survey['Location'].unique()
+    selected_product = st.sidebar.selectbox("Select Product", available_products, key='unique_key_2')
+    end_date_data = survey[(survey['Products List'] == selected_product) & (survey['Timestamp'] == end_date)]
+    avg_min_chip_prices = individual_group_prices(chip_prices, selected_date_range, selected_product)
+    chip_volume = individual_group_prices_(volume, selected_date_range, selected_product)
+    combined = concatenate_dfs(survey)
+except Exception as e:
+    st.error(f'Failed to select Group: {e}')
+    st.stop()
 
 location_groups = {
     "Local Shops": [],
@@ -123,23 +130,30 @@ location_groups = {
     "Farm": survey_3["Location"].unique(),
     "ChipChip": []
 }
-for location in survey["Location"].unique():
-    if re.search(r'suk', location, re.IGNORECASE):
-        location_groups["Local Shops"].append(location)
-    elif re.search(r'supermarket', location, re.IGNORECASE):
-        location_groups["Supermarkets"].append(location)
-    elif re.search(r'sunday', location, re.IGNORECASE):
-        location_groups["Sunday Markets"].append(location)
-    elif re.search(r'Distribution center', location, re.IGNORECASE):
-        location_groups["Distribution Centers"].append(location)
-    elif re.search(r'Chipchip', location, re.IGNORECASE):
-        location_groups["ChipChip"].append(location)
-    
-cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
-reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for loc in survey['Location'].unique()}
-all_sorted_locations = []
-selected_groups_default = [list(location_groups.keys())[5], list(location_groups.keys())[3], list(location_groups.keys())[2]]
-selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison", options=list(location_groups.keys()), default=selected_groups_default)
+try:
+    for location in survey["Location"].unique():
+        if re.search(r'suk', location, re.IGNORECASE):
+            location_groups["Local Shops"].append(location)
+        elif re.search(r'supermarket', location, re.IGNORECASE):
+            location_groups["Supermarkets"].append(location)
+        elif re.search(r'sunday', location, re.IGNORECASE):
+            location_groups["Sunday Markets"].append(location)
+        elif re.search(r'Distribution center', location, re.IGNORECASE):
+            location_groups["Distribution Centers"].append(location)
+        elif re.search(r'Chipchip', location, re.IGNORECASE):
+            location_groups["ChipChip"].append(location)
+except Exception as e:
+    st.error(f'Failed to Append Location Group: {e}')
+    st.stop()
+try:
+    cleaned_location_groups_with_counts = {group: [clean_location_name(loc, filtered_survey) for loc in locations] for group, locations in location_groups.items()}
+    reverse_location_mapping = {clean_location_name(loc, filtered_survey): loc for loc in survey['Location'].unique()}
+    all_sorted_locations = []
+    selected_groups_default = [list(location_groups.keys())[5], list(location_groups.keys())[3], list(location_groups.keys())[2]]
+    selected_groups = st.sidebar.multiselect("Select Location Groups for Comparison", options=list(location_groups.keys()), default=selected_groups_default)
+except Exception as e:
+    st.error(f'Failed to select Location Groups: {e}')
+    st.stop()
 
 
 key_counter = 0
@@ -177,10 +191,13 @@ for group, sorted_locations in cleaned_location_groups_with_counts.items():
 
 filtered_survey = survey[survey['Location'].isin(all_sorted_locations)]
 visualize_price_by_location(filtered_survey, selected_date_range, selected_product, all_sorted_locations)
-df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
-df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
+try:
+    df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
+    df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
+except:
+    st.error(f'Failed to calculate min and average prices: {e}')
+    st.stop()
 
-# Display various sections with collapsible tables
 sections = ["Local Shops", "Supermarkets", "Sunday Markets", "Distribution Centers", "Farm"]
 for section in sections:
     text = f"{section} Overview"
