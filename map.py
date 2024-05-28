@@ -70,7 +70,7 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
         (df['Location'].isin(selected_locations)) 
     ] 
     
-    st.markdown(f"### Price Visualization for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
+    st.markdown(f"### Price Overview for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
     
     if filtered_data.empty: 
         st.markdown("-----") 
