@@ -319,7 +319,7 @@ def plot_min_price_trends(data, selected_date_range, selected_product, location_
     
     chart = chart.properties(
         title=f"Minimum Prices Trend for {selected_product}",
-        width=1100,
+        width=800,
         height=400
     ).interactive()
     
