@@ -194,7 +194,7 @@ visualize_price_by_location(filtered_survey, selected_date_range, selected_produ
 try:
     df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
     df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
-except:
+except Exception as e:
     st.error(f'Failed to calculate min and average prices: {e}')
     st.stop()
 
