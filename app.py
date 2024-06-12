@@ -175,7 +175,6 @@ with st.sidebar.form(key='price_form'):
     selected_product = st.selectbox("Select Product:", list(product_bulk_sizes.keys()))
     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
-    #bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
     submit_button = st.form_submit_button(label='Submit')
 
     if submit_button:
