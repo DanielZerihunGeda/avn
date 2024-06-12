@@ -13,7 +13,6 @@ import numpy as np
 import _thread
 import weakref
 
-
 credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
