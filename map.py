@@ -240,7 +240,7 @@ def append_df_to_gsheet(sheet_name, worksheet_name, df):
     worksheet.clear()
 
     worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
-from gspread_dataframe import set_with_dataframe
+
 def append_df_to_gsheet_1(sheet_name, worksheet_name, df, client, product_bulk_sizes):
     try:
         spreadsheet = client.open(sheet_name)
