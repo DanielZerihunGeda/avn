@@ -130,6 +130,7 @@ location_groups = {
     "Farm": survey_3["Location"].unique(),
     "ChipChip": []
 }
+
 try:
     for location in survey["Location"].unique():
         if re.search(r'suk', location, re.IGNORECASE):
@@ -157,27 +158,40 @@ except Exception as e:
 
 
 key_counter = 0
-
+product_bulk_sizes = {
+  'Tomatoes Grade A' : [25,50,100], 'Tomatoes Grade B': [25,50,100],
+       'Red Onion Grade A Restaurant quality': [25,50,100], 'Red Onion Grade B': [25,50,100],
+       'Potatoes': [25,50,100], 'Potatoes Restaurant Quality': [25,50,100], 'Carrot': [20,40,80],
+       'Chilly Green': [15,30,60], 'Beet root': [20, 40, 80], 'White Cabbage': [20, 40, 80], 'Avocado': [25, 50, 100],
+       'Strawberry': [5, 15, 30], 'Papaya': [15, 30, 60], 'Cucumber': [10, 20, 40], 'Garlic': [10, 20, 40], 'Ginger': [10, 20, 40],
+       'Pineapple': [5, 15, 30], 'Mango': [15, 30, 60], 'Lemon': [10, 20, 40], 'Red Onion Grade C': [25,50,100],
+       'Valencia Orange': [10, 20, 40], 'Courgette': [10, 20, 40], 'Avocado Shekaraw': [25,50,100], 'Courgetti': [10, 20, 40],
+       'Apple': [10, 20, 40], 'Red Onion Grade A  Restaurant q': [25,50,100],
+       'Potatoes Restaurant quality': [25,50,100], 'Chilly Green (Elfora)': [15,30,60],
+       'Yerer Orange': [10,20, 40 ], 'Beetroot': [20, 40 , 80],
+       'Red Onion Grade A  Restaurant quality' : [25,50,100]
+}
 with st.sidebar.form(key='price_form'):
+    selected_product = st.selectbox("Select Product:", list(product_bulk_sizes.keys()))
     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
-    bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
+    #bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
     submit_button = st.form_submit_button(label='Submit')
 
     if submit_button:
-        if individual_price == 0 and group_price == 0 and bulk_price == 0:
+        if individual_price == 0 and group_price == 0:
             st.warning("Please set at least one price.")
         else:
             current_time = datetime.now()
             data = {
+                'Product': [selected_product],
+                'PriceType': ['Individual Price' if group_price == 0 else 'Group Price'],
                 'Individual Price': [individual_price],
-                'Group Price': [group_price],
-                'Bulk Price': [bulk_price],
-                'Timestamp': [current_time.strftime("%Y-%m-%d")],
-                'Products List': selected_product
+                'Group Price': [group_price if group_price != 0 else None],
+                'Timestamp': [current_time.strftime("%Y-%m-%d")]
             }
             df = pd.DataFrame(data)
-            append_df_to_gsheet('chip', 'set_price', df)
+            append_df_to_gsheet_1('chip', 'Sheet6', df, client, product_bulk_sizes)
             st.success('Data submitted successfully!')
 
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
@@ -195,9 +209,8 @@ try:
     df = calculate_min_prices(survey, selected_date_range, selected_product, location_groups)
     df1 = calculate_prices_by_location(survey, selected_date_range, selected_product, location_groups)
 except Exception as e:
-    st.error(f'Failed to Calculate min prices: {e}')
+    st.error(f'Failed to calculate min and average prices: {e}')
     st.stop()
-
 sections = ["Local Shops", "Supermarkets", "Sunday Markets", "Distribution Centers", "Farm"]
 for section in sections:
     text = f"{section} Overview"
@@ -208,13 +221,11 @@ for section in sections:
     st.write(df[section])
     collapsible_table(section, df1[section])
     st.write("<hr style='border-top: 2px solid white; margin: 10px 0;'>", unsafe_allow_html=True)
-
 text = f"chipchip Price Overview"
 html_string = f"""
     <span style="font-weight: bold; color: red;">{text}</span>
     """
 st.write(html_string, unsafe_allow_html=True)
-
 st.write(avg_min_chip_prices)
 st.write(chip_volume)
 plot_min_price_trends(combined, selected_date_range, selected_product, location_groups, selected_groups)
