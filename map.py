@@ -6,26 +6,15 @@ import re
 import numpy as np
 from io import StringIO
 from google.oauth2.service_account import Credentials
-import json
+import json 
 from datetime import datetime, timedelta
 import gspread
-import numpy
+import numpy as np
 import _thread
 import weakref
 
-def no_op_hash(obj):
-    return str(obj)
-def weak_method_hash(obj):
-    return str(obj)
 
-@st.cache_data(hash_funcs={_thread.RLock: no_op_hash, weakref.WeakMethod: weak_method_hash}, ttl=86400)
-def read_gsheet_to_df(sheet_name, worksheet_name):
-    scope = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
-
-    credentials_info = {
+credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
         "project_id": st.secrets["google_credentials"]["project_id"],
         "private_key_id": st.secrets["google_credentials"]["private_key_id"],
@@ -37,10 +26,23 @@ def read_gsheet_to_df(sheet_name, worksheet_name):
         "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
         "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
     }
-    credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
-    client = gspread.authorize(credentials)
+scope = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
 
+credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
+
+client = gspread.authorize(credentials)
+def no_op_hash(obj):
+    return str(obj)
+def weak_method_hash(obj):
+    return str(obj)
+
+@st.cache_data(hash_funcs={_thread.RLock: no_op_hash, weakref.WeakMethod: weak_method_hash})
+def read_gsheet_to_df(sheet_name, worksheet_name):
+    
     try:
         spreadsheet = client.open(sheet_name)
     except gspread.exceptions.SpreadsheetNotFound:
@@ -70,13 +72,12 @@ def visualize_price_by_location(df, selected_date_range, selected_product, selec
         (df['Location'].isin(selected_locations)) 
     ] 
     
-    st.markdown(f"### Price Overview for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
+    st.markdown(f"### Price Visualization for {selected_product} from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}") 
     
     if filtered_data.empty: 
-        st.markdown("-----") 
+        st.markdown("No data available for the selected parameters.") 
         return 
     
-    # Calculate average price or use 'Unit Price' directly if no average calculation is needed
     filtered_data = filtered_data.assign(average_price=lambda x: x['Unit Price'])
     
     if len(filtered_data) == 1:
@@ -220,28 +221,6 @@ def calculate_prices_by_location(data, selected_date_range, selected_product, lo
     return group_dfs
 
 def append_df_to_gsheet(sheet_name, worksheet_name, df):
-    # Define the scope
-    scope = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
-
-    # Get credentials from Streamlit secrets
-    credentials_info = {
-        "type": st.secrets["google_credentials"]["type"],
-        "project_id": st.secrets["google_credentials"]["project_id"],
-        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
-        "private_key": st.secrets["google_credentials"]["private_key"],
-        "client_email": st.secrets["google_credentials"]["client_email"],
-        "client_id": st.secrets["google_credentials"]["client_id"],
-        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
-        "token_uri": st.secrets["google_credentials"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
-    }
-    credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
-
-    client = gspread.authorize(credentials)
     
     try:
         spreadsheet = client.open(sheet_name)
@@ -258,18 +237,41 @@ def append_df_to_gsheet(sheet_name, worksheet_name, df):
     existing_data = worksheet.get_all_records()
     existing_df = pd.DataFrame(existing_data)
     combined_df = pd.concat([existing_df, df], ignore_index=True)
-    
-    # Clear existing data in the worksheet
     worksheet.clear()
-    
-    # Update the worksheet with the combined data
-    worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
 
+    worksheet.update([combined_df.columns.values.tolist()] + combined_df.values.tolist())
+from gspread_dataframe import set_with_dataframe
+def append_df_to_gsheet_1(sheet_name, worksheet_name, df, client, product_bulk_sizes):
+    try:
+        spreadsheet = client.open(sheet_name)
+    except gspread.exceptions.SpreadsheetNotFound:
+        st.error(f"Spreadsheet '{sheet_name}' not found.")
+        return
+
+    try:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        st.error(f"Worksheet '{worksheet_name}' not found in spreadsheet '{sheet_name}'.")
+        return
+    existing_data = worksheet.get_all_records()
+    existing_df = pd.DataFrame(existing_data)
+
+    df = df[df['PriceType'].isin(['Individual Price', 'Group Price'])]
+
+    df['Bulk Price 1'] = df.apply(lambda row: row['Group Price'] * 1.10 if row['PriceType'] == 'Group Price' else None, axis=1)
+    df['Bulk Price 2'] = df.apply(lambda row: row['Group Price'] * 1.05 if row['PriceType'] == 'Group Price' else None, axis=1)
+    df['Bulk Price 3'] = df.apply(lambda row: row['Group Price'] * 0.95 if row['PriceType'] == 'Group Price' else None, axis=1)
+
+    df['Bulk Size 1'] = df['Product'].map(lambda x: product_bulk_sizes[x][0] if x in product_bulk_sizes else None)
+    df['Bulk Size 2'] = df['Product'].map(lambda x: product_bulk_sizes[x][1] if x in product_bulk_sizes else None)
+    df['Bulk Size 3'] = df['Product'].map(lambda x: product_bulk_sizes[x][2] if x in product_bulk_sizes else None)
+
+    combined_df = pd.concat([existing_df, df], ignore_index=True)
+
+    worksheet.clear()
+    set_with_dataframe(worksheet, combined_df)
 def calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups):
-    # Ensure 'Timestamp' is a datetime and normalize to remove time
     data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.normalize()
-    
-    # Filter data for the selected product and date range
     product_data = data[(data['Products List'] == selected_product) &
                         (data['Timestamp'] >= pd.to_datetime(selected_date_range[0])) &
                         (data['Timestamp'] <= pd.to_datetime(selected_date_range[1]))]
@@ -278,8 +280,6 @@ def calculate_min_prices_for_viz(data, selected_date_range, selected_product, lo
         return pd.DataFrame(columns=['Date', 'Location Group', 'Min_Price'])
     
     date_range = pd.date_range(start=selected_date_range[0], end=selected_date_range[1])
-    
-    # Create a DataFrame to collect min prices for the selected groups
     records = []
     for group in selected_groups:
         if group not in location_groups:
@@ -291,19 +291,23 @@ def calculate_min_prices_for_viz(data, selected_date_range, selected_product, lo
             if not day_data.empty:
                 min_price = day_data['Unit Price'].min()
                 records.append({'Date': date, 'Location Group': group, 'Min_Price': min_price})
-    
     return pd.DataFrame(records)
 
 def plot_min_price_trends(data, selected_date_range, selected_product, location_groups, selected_groups):
-    # Calculate minimum prices for visualization
     min_price_data = calculate_min_prices_for_viz(data, selected_date_range, selected_product, location_groups, selected_groups)
     
     if min_price_data.empty:
         st.error("No data available for the selected criteria.")
         return
     
-    # Create the Altair chart with both line and point marks
     line = alt.Chart(min_price_data).mark_line().encode(
+        x=alt.X('Date:T', title='Date', axis=alt.Axis(format='%Y-%m-%d')),
+        y=alt.Y('Min_Price:Q', title='Minimum Price'),
+        color='Location Group:N',
+        tooltip=['Date:T', 'Location Group:N', 'Min_Price:Q']
+    )
+    
+    area_chart = alt.Chart(min_price_data).mark_area(opacity=0.5).encode(
         x=alt.X('Date:T', title='Date', axis=alt.Axis(format='%Y-%m-%d')),
         y=alt.Y('Min_Price:Q', title='Minimum Price'),
         color='Location Group:N',
@@ -315,13 +319,10 @@ def plot_min_price_trends(data, selected_date_range, selected_product, location_
         size=alt.value(50)
     )
     
-    chart = line + points
-    
+    chart = area_chart + line + points
     chart = chart.properties(
         title=f"Minimum Prices Trend for {selected_product}",
         width=1100,
         height=400
     ).interactive()
-    
-    # Display the chart using Streamlit
     st.altair_chart(chart)
