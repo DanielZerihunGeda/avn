@@ -191,7 +191,7 @@ with st.sidebar.form(key='price_form'):
                 'Timestamp': [current_time.strftime("%Y-%m-%d")]
             }
             df = pd.DataFrame(data)
-            append_df_to_gsheet_1('chip', 'set_price', df, client, product_bulk_sizes)
+            append_df_to_gsheet_1('chip', 'Sheet6', df, client, product_bulk_sizes)
             st.success('Data submitted successfully!')
 
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
