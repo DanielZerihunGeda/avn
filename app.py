@@ -170,26 +170,28 @@ product_bulk_sizes = {
        'Yerer Orange': [10,20, 40 ], 'Beetroot': [20, 40 , 80],
        'Red Onion Grade A  Restaurant quality' : [25,50,100]
 }
+
 with st.sidebar.form(key='price_form'):
+    selected_product = st.selectbox("Select Product:", list(product_bulk_sizes.keys()))
     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
-    bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
+    #bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
     submit_button = st.form_submit_button(label='Submit')
 
     if submit_button:
-        if individual_price == 0 and group_price == 0 and bulk_price == 0:
+        if individual_price == 0 and group_price == 0:
             st.warning("Please set at least one price.")
         else:
             current_time = datetime.now()
             data = {
+                'Product': [selected_product],
+                'PriceType': ['Individual Price' if group_price == 0 else 'Group Price'],
                 'Individual Price': [individual_price],
-                'Group Price': [group_price],
-                'Bulk Price': [bulk_price],
-                'Timestamp': [current_time.strftime("%Y-%m-%d")],
-                'Products List': selected_product
+                'Group Price': [group_price if group_price != 0 else None],
+                'Timestamp': [current_time.strftime("%Y-%m-%d")]
             }
             df = pd.DataFrame(data)
-            append_df_to_gsheet('chip', 'set_price', df)
+            append_df_to_gsheet_1('chip', 'Sheet6', df, client, product_bulk_sizes)
             st.success('Data submitted successfully!')
 
 for group, sorted_locations in cleaned_location_groups_with_counts.items():
