@@ -12,6 +12,7 @@ import gspread
 import numpy as np
 import _thread
 import weakref
+from gspread_dataframe import set_with_dataframe
 
 credentials_info = {
         "type": st.secrets["google_credentials"]["type"],
