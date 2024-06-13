@@ -157,7 +157,19 @@ except Exception as e:
 
 
 key_counter = 0
-
+product_bulk_sizes = {
+  'Tomatoes Grade A' : [25,50,100], 'Tomatoes Grade B': [25,50,100],
+       'Red Onion Grade A Restaurant quality': [25,50,100], 'Red Onion Grade B': [25,50,100],
+       'Potatoes': [25,50,100], 'Potatoes Restaurant Quality': [25,50,100], 'Carrot': [20,40,80],
+       'Chilly Green': [15,30,60], 'Beet root': [20, 40, 80], 'White Cabbage': [20, 40, 80], 'Avocado': [25, 50, 100],
+       'Strawberry': [5, 15, 30], 'Papaya': [15, 30, 60], 'Cucumber': [10, 20, 40], 'Garlic': [10, 20, 40], 'Ginger': [10, 20, 40],
+       'Pineapple': [5, 15, 30], 'Mango': [15, 30, 60], 'Lemon': [10, 20, 40], 'Red Onion Grade C': [25,50,100],
+       'Valencia Orange': [10, 20, 40], 'Courgette': [10, 20, 40], 'Avocado Shekaraw': [25,50,100], 'Courgetti': [10, 20, 40],
+       'Apple': [10, 20, 40], 'Red Onion Grade A  Restaurant q': [25,50,100],
+       'Potatoes Restaurant quality': [25,50,100], 'Chilly Green (Elfora)': [15,30,60],
+       'Yerer Orange': [10,20, 40 ], 'Beetroot': [20, 40 , 80],
+       'Red Onion Grade A  Restaurant quality' : [25,50,100]
+}
 with st.sidebar.form(key='price_form'):
     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
