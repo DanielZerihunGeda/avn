@@ -174,6 +174,7 @@ product_bulk_sizes = {
 with st.sidebar.form(key='price_form'):
     individual_price = st.number_input("Set Individual Price:", min_value=0.0, format="%.2f")
     group_price = st.number_input("Set Group Price:", min_value=0.0, format="%.2f")
+    b2b = st.number_input("Set B2B Price:", min_value=0.0, format="%.2f")
     #bulk_price = st.number_input("Set Bulk Price:", min_value=0.0, format="%.2f")
     submit_button = st.form_submit_button(label='Submit')
 
@@ -187,6 +188,7 @@ with st.sidebar.form(key='price_form'):
                 'PriceType': ['Individual Price' if group_price == 0 else 'Group Price'],
                 'Individual Price': [individual_price],
                 'Group Price': [group_price if group_price != 0 else None],
+                'B2B Price': [b2b],
                 'Timestamp': [current_time.strftime("%Y-%m-%d")]
             }
             df = pd.DataFrame(data)
